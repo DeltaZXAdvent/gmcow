@@ -1,0 +1,525 @@
+# Emacs Org mode
+*Raw multi-language menu & menu code generation utility*
+Global.menu[0] = Array(
+ 	| [main]             | 【主菜单】   |    0 |
+ 	| perspective >      | 视角 >       | 1002 |
+ 	| status >           | 状态 >       | 1001 |
+ 	| customize >        | 个性化 >     | 1003 |
+ 	| flash              | 闪现 >       |   15 |
+ 	| projectile >       | 子弹 >       | 1004 |
+ 	| rotate >           | 旋转 >       | 1005 |
+ 	| emote >            | 表情 >       | 1026 |
+ 	| drawing >          | 绘画 >       | 1027 |
+ 	| change hero        | 更换英雄     |   58 |
+ 	| toggle protection  | 保护         |   17 |
+ 	| cancel action      | 取消后腰     |   35 |
+ 	| hide hud           | HUD开关      |   18 |
+ 	| func being fixed.. | 功能修复中.. |   23 |
+ 	| func being fixed.. | 功能修复中.. |   22 |
+ 	| say a word         | 喊话         |  130 |
+ 	| shortcuts >        | 快捷键 >     | 1007 |
+ 	| change title       | 改变称号     |   57 |
+ 	| advanced >         | 高级 >       | 1028 |
+ 	| movement >         | 移动模式 >   | 1031 |
+ 	| RTS command >      | RTS命令 >    | 1029 |
+ 	| langugae >         | 语言 >       | 1032 |
+ 	| about >            | 关于 >       | 1033 |
+ 	| operator >         | OP >         |  999 |
+);
+Global.menu[1] = Array(
+	| [status]    | 【状态】 |    0 |
+	| hacked      | 被黑     |    1 |
+	| burning     | 燃烧     |    2 |
+	| kncked down | 击倒     |    3 |
+	| asleep      | 沉睡     |    4 |
+	| frozen      | 冰冻     |    5 |
+	| unkillable  | 不死     |    6 |
+	| invincible  | 无敌     |    7 |
+	| phased out  | 相移     |    8 |
+	| rooted      | 定身     |    9 |
+	| stunned     | 击晕     |   10 |
+	| invisible   | 隐身     |   21 |
+	| main >      | 主菜单 > | 1000 |
+);
+Global.menu[2] = Array(
+	| [perspective] | 【视角】 |    0 |
+	| default       | 默认     |   11 |
+	| third         | 第三人称 |   13 |
+	| second        | 第二人称 |   12 |
+	| fixed         | 固定视角 |   14 |
+	| main >        | 主菜单 >    | 1000 |
+);
+Global.menu[3] = Array(
+	| [customize]                     | 【个性化】             |     0 |
+	| scale hero                      | 改变大小               |    25 |
+	| stop scaling                    | 恢复大小               |    26 |
+	|                                 |                        |     0 |
+	| change outline to palette color | 将轮廓设置为调色板颜色 | 13000  |
+	|                                 |                        |     0 |
+	| main >                          | 主菜单 >               |  1000 |
+);
+Global.menu[4] = Array(
+	| [projectile]                | 【子弹】           |    0 |
+	| mass fire (specific heroes) | 高攻速（特定英雄） |   33 |
+	| motionless projectile       | 静止子弹           |   19 |
+	| speed up                    | 加速               |   48 |
+	| slow down                   | 减速               |   49 |
+	| main >                      | 主菜单 >           | 1000 |
+);
+Global.menu[5] = Array(
+	| [rotate]     | 【旋转】 |    0 |
+	| horizontally | 水平     |   32 |
+	| vertically   | 垂直     |   41 |
+	| speed up     | 加速     |   42 |
+	| slow down    | 减速     |   43 |
+	| main >       | 主菜单 >    | 1000 |
+);
+Global.menu[6] = Array(
+	| [keyboard-alphabet] | 【键盘-字母】 |    0 |
+	| A                   | A             | 6065 |
+	| B                   | B             | 6066 |
+	| C                   | C             | 6067 |
+	| D                   | D             | 6068 |
+	| E                   | E             | 6069 |
+	| F                   | F             | 6070 |
+	| G                   | G             | 6071 |
+	| H                   | H             | 6072 |
+	| I                   | I             | 6073 |
+	| J                   | J             | 6074 |
+	| K                   | K             | 6075 |
+	| L                   | L             | 6076 |
+	| M                   | M             | 6077 |
+	| N                   | N             | 6078 |
+	| O                   | O             | 6079 |
+	| P                   | P             | 6080 |
+	| Q                   | Q             | 6081 |
+	| R                   | R             | 6082 |
+	| S                   | S             | 6083 |
+	| T                   | T             | 6084 |
+	| U                   | U             | 6085 |
+	| V                   | V             | 6086 |
+	| W                   | W             | 6087 |
+	| X                   | X             | 6088 |
+	| Y                   | Y             | 6089 |
+	| Z                   | Z             | 6090 |
+	| number >            | 数字 >        | 1025 |
+	| sign >              | 符号 >        | 1024 |
+	| <space>             | <空格>        | 6032 |
+	| <backspace>         | <退格>        | 6127 |
+	| <enter>             | <回车>        | 6257 |
+	| <cancel>            | <取消>          | 6258 |
+);
+Global.menu[7] = Array(
+	| [shortcut]                                                          | 【快捷键】           |    0 |
+	| which key to be used as a shortcut key:                             | 选择要设定的快捷键： |    0 |
+	| primary fire                                                        | 主武器               | 4001 |
+	| secondary fire                                                      | 副武器               | 4002 |
+	| release primary fire                                                | 停止主武器时         | 4004 |
+	| release secondary fire                                              | 停止副武器时         | 4005 |
+	| release reload                                                      | 松开换弹键           | 4006 |
+	| reload                                                              | 换弹键               | 4000 |
+	| i need healing                                                      | 需要治疗             | 4003 |
+	| clear all shortcuts                                                 | 清除所有快捷键       | 4100 |
+	| main >                                                              | 主菜单 >             | 1000 |
+	| select a option and press reload when menu opened to set a shortcut | 选定菜单选项后按下换弹键以设定快捷键   |    0 |
+);
+Global.menu[8] = Array(
+	| [operator]                   | 【OP】                             |    0 |
+	| reset voice chat             | 刷新语音聊天                       |  700 |
+	| set default respawn position | 设置默认重生点                     |  200 |
+	| bots >                       | 机器人 >                           | 1030 |
+	| start                        | 开始                               |   59 |
+	| camera                       | 开关全体共用固定视角               |   36 |
+	| disable voice chat           | 禁用玩家语音                       |   94 |
+	| declare victory              | 宣布胜利                           |   93 |
+	| restart match                | 重开比赛                           |  101 |
+	| player joining message       | 玩家加入时应用栏提示（会重生房主） |   64 |
+	| switch description           | 改变房间描述                       |   65 |
+	| call to request songs        | 呼叫点歌                           |   66 |
+	| test                         | 测试                               |   99 |
+	| slow motion >                | 慢动作 >                           | 1009 |
+	| chorus >                     | 合唱 >                             | 1010 |
+	| overwatch music maker >      | 守望先锋音乐制造机 >               | 1013 |
+	| bot >                        | 机器人 >                           | 1011 |
+	| main >                       | 主菜单 >                           | 1000 |
+);
+Global.menu[9] = Array(
+	| [slow motion] | 【慢动作】       |    0 |
+	| 10% on/off    | 开关0.1倍速      |   70 |
+	| *(√5-1)/2    | 减慢一个黄金比例 |   71 |
+	| *(√5+1)/2    | 加快一个黄金比例 |   72 |
+	| main >        | 主菜单 >            | 1000 |
+);
+Global.menu[10] = Array(
+	| [chorus]      | 【合唱】   |    0 |
+	| knocked down  | 击倒       |   77 |
+	| hacked        | 被黑       |   79 |
+	| goodbye       | 再见       |   78 |
+	| hello         | 你好       |   73 |
+	| need healing  | 需要治疗   |   74 |
+	| voice line up | 语音（上） |   75 |
+	| thanks        | 感谢       |   76 |
+	| main >        | 主菜单 >   | 1000 |
+);
+Global.menu[11] = Array(
+	| [bot]            | 【机器人】     |    0 |
+	| test bot         | 测试机器人     |   98 |
+	| zarya            | 查莉娅         |   97 |
+	| bash             | 冲撞的锤妹     |   96 |
+	| venom            | 毒液           |   95 |
+	| set status       | 设置状态       |   90 |
+	| disco ball       | 迪斯科灯球     |   69 |
+	| bunny            | 小兔           |   83 |
+	| supercharger     | 超充能器       |   85 |
+	| create bot       | 创建机器人     |   67 |
+	| ghost            | 傀儡           |   87 |
+	| tennis ball      | 网球           |   88 |
+	| the flash        | 闪电侠         |   91 |
+	| record player    | 留声机         |   92 |
+	| destroy bot      | 删除机器人     |   84 |
+	| destroy all bots | 删除所有机器人 |   68 |
+	| change team      | 改变机器人队伍 |   89 |
+	| main >           | 主菜单 >          | 1000 |
+);
+"obsolete"
+Global.menu[12] = Array(
+	| [effect]            | 【效果】     |    0 |
+	| create effect       | 创建效果     |   80 |
+	| change effect       | 改变效果     |   81 |
+	| destroy all effects | 删除所有效果 |   82 |
+	| main >              | 主菜单 >        | 1000 |
+);
+Global.menu[13] = Array(
+	| [overwatch music maker] | 【守望先锋音乐制造机】 |    0 |
+	| 开始                    | 开始                   | 2000 |
+	| 添加音轨                | 添加音轨               | 2001 |
+	| 调整BPM                 | 调整BPM                | 2002 |
+	| 清空                    | 清空                   | 2003 |
+	| beat maker              | beat maker             | 2004 |
+	| demos >                 | 示例 >                 | 1014 |
+	| 主菜单 >                | 主菜单 >                  | 1000 |
+);
+Global.menu[14] = Array(
+	|                 [demos] | 【示例】 |    0 |
+	|                两只老虎 | 两只老虎 | 2101 |
+	|                    清除 |     清楚 | 2100 |
+	|                       1 |        1 | 2200 |
+	|                       2 |        2 | 2201 |
+	|                       4 |        4 | 2202 |
+	|                       8 |        8 | 2203 |
+	|                      13 |       13 | 2204 |
+	|                     112 |      112 | 2205 |
+	|                    1124 |     1124 | 2206 |
+	| overwatch music maker > | 守望先锋音乐制造机 > | 1013 |
+);
+Global.menu[15] = Array(
+	| [effect-page 1/2]               | 【效果 1/2页】 |    0 |
+	| brigitte repair pack impact     |                | 3001 |
+	| brigitte repair pack armor      |                | 3002 |
+	| brigitte whip shot heal area    |                | 3003 |
+	| dva self destruct explosion     |                | 3004 |
+	| echo sticky bomb explosion      |                | 3005 |
+	| hanzo sonic arrow initial pulse |                | 3006 |
+	| lúcio sound barrier cast       |                | 3007 |
+	| moira fade disappear            |                | 3008 |
+	| moira fade reappear             |                | 3009 |
+	| orisa halt implosion            |                | 3010 |
+	| next >                          | 下一页 >       | 1016 |
+	| 主菜单 >                        | 主菜单 >       | 1000 |
+);
+Global.menu[16] = Array(
+	| [effect-page 2/2]               | 【效果 2/2页】 |    0 |
+	| sigma hypersphere implosion     |                | 3011 |
+	| sombra logo                     |                | 3012 |
+	| sombra translocator disappear   |                | 3013 |
+	| sombra translocator reappear    |                | 3014 |
+	| sombra emp explosion            |                | 3015 |
+	| symmetra teleporter reappear    |                | 3016 |
+	| tracer recall disappear effect  |                | 3017 |
+	| tracer recall reappear          |                | 3018 |
+	| zarya particle cannon explosion |                | 3019 |
+	| prev >                          | 上一页 >       | 1015 |
+	| 主菜单 >                        | 主菜单 >          | 1000 |
+);
+Global.menu[17] = Array(
+	| [sound-page 1/7] | 【音效-1/7页】 |    0 |
+	| debuff impact    |                | 5001 |
+	| buff impact      |                | 5002 |
+	| ring explosion   |                | 5003 |
+	| buff explosion   |                | 5004 |
+	| explosion        |                | 5005 |
+	|                  |                | 5006 |
+	|                  |                | 5007 |
+	|                  |                | 5008 |
+	| 随机配置快捷键   | 随机配置快捷键 | 5100 |
+	| demo             | 示例           | 5201 |
+	| record on/off    | 开始录制       | 5101 |
+	| play on/off      | 播放           | 5102 |
+	| next >           | 下一页 >       | 1018 |
+	| 主菜单 >         | 主菜单 >          | 1000 |
+);
+Global.menu[18] = Array(
+	| [sound-page 2/7] | 【音效 2/7页】 |    0 |
+	|                  |                | 5009 |
+	|                  |                | 5010 |
+	|                  |                | 5011 |
+	|                  |                | 5012 |
+	|                  |                | 5013 |
+	|                  |                | 5014 |
+	|                  |                | 5015 |
+	|                  |                | 5016 |
+	| next >           | 下一页 >       | 1019 |
+	| prev >           | 上一页 >       | 1017 |
+	| main >           | 主菜单 >          | 1000 |
+);
+Global.menu[19] = Array(
+	| [sound-page 3/7] | 【音效 3/7页】 |    0 |
+	|                  |                | 5017 |
+	|                  |                | 5018 |
+	|                  |                | 5019 |
+	|                  |                | 5020 |
+	|                  |                | 5021 |
+	|                  |                | 5022 |
+	|                  |                | 5023 |
+	|                  |                | 5024 |
+	| next >           | 下一页 >       | 1020 |
+	| prev >           | 上一页 >       | 1018 |
+	| 主菜单 >         | 主菜单 >          | 1000 |
+);
+Global.menu[20] = Array(
+	| [sound-page 4/7] | 【音效 4/7页】  |    0 |
+	|                  |   | 5025 |
+	|                  |   | 5026 |
+	|                  |   | 5027 |
+	|                  |   | 5028 |
+	|                  |   | 5029 |
+	|                  |   | 5030 |
+	|                  |   | 5031 |
+	|                  |   | 5032 |
+	| next >           |   | 1021 |
+	| prev >           |   | 1019 |
+	| 主菜单 >         |  主菜单 >   | 1000 |
+);
+Global.menu[21] = Array(
+	| [sound-page 5/7] | 【音效 5/7页】 |    0 |
+	|                  |                | 5033 |
+	|                  |                | 5034 |
+	|                  |                | 5035 |
+	|                  |                | 5036 |
+	|                  |                | 5037 |
+	|                  |                | 5038 |
+	|                  |                | 5039 |
+	|                  |                | 5040 |
+	| next >           |                | 1022 |
+	| prev >           |                | 1020 |
+	| 主菜单 >         | 主菜单 >          | 1000 |
+);
+Global.menu[22] = Array(
+	| [sound-page 6/7] | 【音效 6/7页】 |    0 |
+	|                  |                | 5041 |
+	|                  |                | 5042 |
+	|                  |                | 5043 |
+	|                  |                | 5044 |
+	|                  |                | 5045 |
+	|                  |                | 5046 |
+	|                  |                | 5047 |
+	|                  |                | 5048 |
+	| next >           |                | 1023 |
+	| prev >           |                | 1021 |
+	| 主菜单 >         | 主菜单 >          | 1000 |
+);
+Global.menu[23] = Array(
+	| [sound-page 7/7] | 【音效 7/7页】 |    0 |
+	|                  |                | 5049 |
+	|                  |                | 5050 |
+	|                  |                | 5051 |
+	| prev >           |                | 1022 |
+	| 主菜单 >         | 主菜单 >          | 1000 |
+);
+Global.menu[24] = Array(
+	| [keyboard-sign] | 【键盘-符号】 |    0 |
+	| ~               |               | 6126 |
+	| !               |               | 6033 |
+	| @               |               | 6064 |
+	| #               |               | 6035 |
+	| $               |               | 6036 |
+	| %               |               | 6037 |
+	| ^               |               | 6094 |
+	| &               |               | 6038 |
+	| *               |               | 6042 |
+	| (               |               | 6040 |
+	| )               |               | 6041 |
+	| _               |               | 6095 |
+	| +               |               | 6043 |
+	| `               |               | 6096 |
+	| -               |               | 6045 |
+	| =               |               | 6061 |
+	| :               |               | 6058 |
+	| ;               |               | 6059 |
+	| \"              |               | 6034 |
+	| '               |               | 6039 |
+	| <               |               | 6060 |
+	| >               |               | 6062 |
+	| ?               |               | 6063 |
+	| ,               |               | 6044 |
+	| .               |               | 6046 |
+	| /               |               | 6047 |
+	| number >        | 数字 >        | 1025 |
+	| alphabet >      | 字母 >        | 1006 |
+);
+Global.menu[25] = Array(
+	| [keyboard-number] | 【键盘-数字】 |    0 |
+	|                 1 |               | 6049 |
+	|                 2 |               | 6050 |
+	|                 3 |               | 6051 |
+	|                 4 |               | 6052 |
+	|                 5 |               | 6053 |
+	|                 6 |               | 6054 |
+	|                 7 |               | 6055 |
+	|                 8 |               | 6056 |
+	|                 9 |               | 6057 |
+	|                 0 |               | 6048 |
+	|            sign > |               | 1024 |
+	|        alphabet > |               | 1006 |
+	|           <space> |               | 6032 |
+	|       <backspace> |               | 6127 |
+	|           <enter> |               | 6257 |
+	|          <cancel> | <取消>          | 6258 |
+);
+Global.menu[26] = Array(
+	| [emote]          | 【表情】 |    0 |
+	| hero emote:      |          |    0 |
+	| synchronize      | 同步     | 7000 |
+	| line alignment   | 线形排列 | 7001 |
+	|                  |          |    0 |
+	| emote repetition | 重复表情 | 7100 |
+	| main >           | 主菜单 >    | 1000 |
+);
+Global.menu[27] = Array(
+	| [drawing]                   | 【绘画】     |    0 |
+	| on/off                      | 开关         | 8000 |
+	| line/ball                   | 线/球        | 8001 |
+	| palette >                   | 调色板 >     | 500  |
+	| drawing invisibility on/off | 屏蔽所有绘画 | 8003 |
+	| fix position                | 固定位置     | 8004 |
+	| detach position             | 解除固定     | 8006 |
+	| switch position             | 切换位置     | 8005 |
+	| main >                      | 主菜单 >     | 1000 |
+);
+If(Global.settings[0]);
+	Global.menu[28] = Array(
+		| [advanced]              | 【高级】             |    0 |
+		| 设置重生点              | 设置重生点           |  201 |
+		| 刷新语音通道            | 刷新语音通道         |   34 |
+		| overwatch music maker > | 守望先锋音乐制造机 > |  998 |
+		| 奥丽莎打印机            | 奥丽莎打印机         |   86 |
+		| 主菜单 >                | 主菜单 >             | 1000 |
+);
+Else;
+	Global.menu[28] = Array(
+		| 【高级】                | 【高级】             |    0 |
+		| 设置重生点              | 设置重生点           |  201 |
+		| 刷新语音通道            | 刷新语音通道         |   34 |
+		| overwatch music maker > | 守望先锋音乐制造机 > |  998 |
+		| 奥丽莎打印机            | 奥丽莎打印机         |   86 |
+		| 特效 >                  | 特效 >               | 1015 |
+		| 声音 >                  | 声音 >               | 1017 |
+		| 主菜单 >                | 主菜单 >             | 1000 |
+);
+End;
+Global.menu[29] = Array(
+	| [RTS commands]        | 【RTS命令】    |     0 |
+	| move                  | 移动           | 10001 |
+	| primary fire attack   | 攻击           | 10002 |
+	| secondary fire attack | 副武器攻击     | 10007 |
+	| patrol                | 巡逻           | 10003 |
+	| stop                  | 停止           | 10000 |
+	| cloak                 | 隐身           | 10008 |
+	| ability 1             | 技能1          | 10004 |
+	| ability 2             | 技能2          | 10005 |
+	| ultimate              | 终极技能       | 10006 |
+	| select                | 选择           | 10100 |
+	| unselect              | 取消所有选择   | 10102 |
+	| delete bots           | 删除所有机器人 | 10103 |
+	| change team for bots  | 改变机器人队伍 |    89 |
+	| create bot            | 创建机器人     |    87 |
+	| main >                | 主菜单 >          |  1000 |
+);
+Global.menu[30] = Array(
+	| [bots]             | 【机器人】 |     0 |
+	| ult bot            | 大招bot    | 11100 |
+	| position-fixed bot | 固定bot    | 11101 |
+	| main >             | 主菜单 >      |  1000 |
+);
+Global.menu[31] = Array(
+	| [movement] | 【移动】 |     0 |
+	| default    | 默认     | 12000 |
+	| riding     | 坐骑     | 12001 |
+	| main >     | 主菜单 >    |  1000 |
+);
+Global.menu[32] = array(
+	| [language] | 【语言】 |    0 |
+	| english    | english  |  800 |
+	| 简体中文   | 简体中文 |  801 |
+	| main >     | 主菜单 > | 1000 |
+);
+global.menu[33] = array(
+    | [about]                                                 | 【关于】                       |    0 |
+    | If you like the idea of sharing knowledge,              | 如果你喜欢分享知识，           |    0 |
+    | and believe in rationalism and love,                    | 相信理性与爱，                 |    0 |
+    | I would appreciate your adding and having a discussion. | 我们可以加个好友团结一下。     |    0 |
+    | You can see my BattleTag at the mode description.       | 我（模式作者）的战网昵称见简介 |    0 |
+    | main >                                                  | 主菜单 >                       | 1000 |
+);
+global.menu[34] = array(
+    | [palette]                                | 【调色板】         |     0 |
+    | red +                                    | 红 +               | 14000 |
+    | red -                                    | 红 -               | 14001 |
+    | green +                                  | 绿 +               | 14002 |
+    | green -                                  | 绿 -               | 14003 |
+    | blue +                                   | 蓝 +               | 14004 |
+    | blue -                                   | 蓝 -               | 14005 |
+    | only several colors are supported indeed | 只有部分颜色被支持 |     0 |
+    | main >                                   | 主菜单 >           |   501 |
+);
+
+----------------------------------------------------------------
+
+* Scripts
+** TODO Add arguments
+#+begin_src emacs-lisp
+  (defun do ()
+	(goto-char (point-min))
+	(setq result "")
+	(setq loop t)
+	(while loop
+	  (forward-line)
+	  (setq myLine (thing-at-point 'line))
+	  (cond ((string-match "-----" myLine) (setq loop nil))
+			((eq (string-match ");" myLine) 0) (setq result (concat (substring result 0 -2)
+															   "\n"
+															   myLine)))
+			((string-match "\\s-*|\\s-*\\(.*?\\)\\s-*|\\s-*\\(.*?\\)\\s-*|\\s-*\\(.*?\\)\\s-*|" myLine 0)
+			 (setq result (concat result
+								  "\tcustom string(\""
+								  (match-string 2 myLine)
+								  "\"), "
+								  (match-string 3 myLine)
+								  ",\n")))
+			(t (setq result (concat result myLine)))))
+	(forward-line)
+	(insert result)
+	)
+  (setq marker (point-marker))
+  (debug-on-entry 'do)
+  (do)
+  (goto-char marker)
+#+end_src
+
+#+RESULTS:
+: #<marker at 33951 in menu.org>
+
+*Obsolette*
+	| outline-green                   | 轮廓-绿                | 13001 |
+	| outline-blue                    | 轮廓-蓝                | 13002 |
+	| outline-alpha                   | 轮廓-透明度            | 13003 |

@@ -1,0 +1,46 @@
+* Overwatch workshop code structure (my coding standard)
+A workshop setting consists of some modules.
+A module consists of:
+- Dependencies & position relative to rules of depended modules
+- Initialization of variables (global & player rules with no condition)
+  Contains callback subroutines list (for interacting with submodules)
+- Rules which are always running (normal rules)
+- Rules whose running can be toggled by a flag (toggle rules, involving "base" module player variable "ruleflags")
+- Subroutines which can take arguments (use one global variable "argv" to pass arguments)
+Someone can use this structure to write a higher-level compiler / compilation layer.
+
+* Programming practice and needed additional utilities
+- A global variable used to hold temporary and argument varaibles "base.global.argv"
+- A player variable used to hold player rule running flags "base.player.ruleflags"
+- Usually variables, toggle rules, subroutines should begin with a module name acronym
+- Macro definition syntax & integer allocation utility (to organize the variables, e.g. GNU m4)
+
+*Notes*
+- We can regard the two necessary variables as ones of the base module.
+- Module position matters
+
+* Module designs
+** base
+*VARIABLES*
+global:
+  arg: used to represent argument or temporary registers
+  index: loop index; maybe find another way when there's nested loop
+  
+player: ruleflags
+** menu
+*FEATURES*
+  multi-language: dynamic menu vs _multi-menu_
+*VARIABLES*
+global.menu: menus of different languages
+player.
+    menu: { { (string, code) } }
+	    3 code categories: dummy, command, menu branching (need allocating integers)
+	menuopen menuable menuauth menutxt menuid menusel menuitemsel menucmd
+*SUBROUTINES*
+menuctln menuctlp menuctlsel menuupdate
+** draw
+global: drawentities
+player: drawid drawstart drawtype drawvisible
+subrtn: draw drawerase
+
+* TODO 

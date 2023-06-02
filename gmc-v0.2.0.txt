@@ -1,0 +1,3774 @@
+/*
+	TODO modulize
+	TODO converge tmp & arg
+subflags:
+	0:
+	1:
+*/
+
+settings {
+	main {
+		Description: "Author: DZeratulX#3306 Press interact button to start. 互动键开始游玩。"
+		Mode Name: "Geocentric Music Club"
+	}
+	lobby {
+		Allow Players Who Are In Queue: Yes
+		Match Voice Chat: Enabled
+		Max Team 1 Players: 0
+		Max Team 2 Players: 0
+		max ffa players: 11
+		Return To Lobby: Never
+		Swap Teams After Match: No
+		Use Experimental Update If Available: Yes
+	}
+	modes {
+		deathmatch {
+		    enabled maps {
+			    kanezaka 0
+			}
+		}
+		Skirmish {
+			enabled maps {
+				Dorado 0
+				Numbani 0
+			}
+		}
+		General {
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+	}
+	heroes {
+		General {
+			Ability Cooldown Time: 0%
+		}
+	}
+	extensions
+	{
+		Play More Effects
+		Spawn More Dummy Bots
+	}
+}
+
+variables {
+	global:
+		// base
+		0: tmp
+		1: arg
+
+		// menu
+		2: menu
+		17: menuable
+
+		// draw
+		3: drawentities
+
+		// misc
+		26: channel
+
+		4: OPAFK
+		7: bCall
+		8: slowmotion
+		9: neffect
+		10: index
+		11: botconfig
+		12: cmdsndtracks
+		13: start
+		14: mmunitt
+		15: resstat
+		16: ascii
+		18: palette
+		19: dialogs
+		20: camera
+		21: camlock
+		22: settings
+		23: botpitch
+		24: idnxt
+		25: endarg
+
+	player:
+		// base
+		23: subflags
+		
+		// menu
+		0: cmd
+		1: menuauth
+		3: menuid
+		6: menusel
+		4: menuitemsel
+		5: menuopen
+		7: menutxt
+		53: menu
+
+		// draw
+		9: drawstart
+		10: drawid
+		11: drawtype
+		12: drawvisible
+		13: drawpos
+		54: drawposs
+		55: drawposcurrent
+		56: palette
+
+		2: stat
+		14: posfac
+		15: infra
+		16: resstat
+		17: eyelookat
+		18: bottype
+		19: spintype
+		20: spinrate
+		21: spinangle
+		22: spinanglebase
+		24: input
+		25: inputid
+		26: inputuse
+		27: oriprint
+		28: actflag
+		29: actlist
+		30: actseq
+		31: thrlist
+		32: thrseq
+		33: faclist
+		34: facseq
+		35: mmpitchbase
+		36: mmindex
+		37: mmrhythm
+		38: mmmelody
+		39: mmpitch
+		40: prompt
+		41: chat
+		42: scset
+		43: scs
+		44: sndrec
+		45: botvars
+		46: nameid
+		47: rtsarg
+		48: rtsenv
+		49: botconfig
+		51: contiarg
+		52: outlcolor
+}
+
+subroutines {
+	// menu
+	0: menuctln
+	1: menuctlp
+	2: menuctlsel
+	3: menuupdate
+
+	// draw
+	8: draw
+	9: drawerase
+	40: cmdpalette
+
+	6: massfire
+	7: infammo
+	10: emoterepeat
+	11: orisaprint
+	12: groovethr
+	13: groovefac
+	14: eyetrack
+	15: mmtrackplay
+	16: mmbeatmaker
+	17: effect
+	19: cmdsnd
+	20: sndrec
+	21: sndplay
+	22: setclr
+	23: hello
+	24: cmddraw
+	25: endgame
+	27: draw_
+	28: cmdemote
+	29: changehero
+	30: cmdrts
+	31: rtscmd
+	32: cmdmvmod
+	33: vehi1
+	34: vehi2
+	35: contiswitch
+	36: outlupdate
+	37: cmdcustom
+	38: cmdmisc
+	39: changechnl
+}
+
+rule("sub menuctln") {
+	event {Subroutine; menuctln;}
+	actions {
+		Wait Until(!Is Button Held(Event Player, Button(Primary Fire)), 99999);
+		While(True);
+			Wait Until(Is Button Held(Event Player, Button(Primary Fire)), 99999);
+			If(!Event Player.menuopen);
+				Abort;
+			End;
+			"increment"
+			While(True);
+				Event Player.menuitemsel += 2;
+				If(Event Player.menuitemsel >= Count Of(event player.menu[Event Player.menusel]));
+					Event Player.menuitemsel = 0;
+				End;
+				If(event player.menu[Event Player.menusel][Event Player.menuitemsel + 1] != 0);
+					Break;
+				End;
+			End;
+			Start Rule(menuupdate, Do Nothing);
+			Wait Until(!Is Button Held(Event Player, Button(Primary Fire)), 0.320);
+			If(Is Button Held(Event Player, Button(Primary Fire)));
+				While(True);
+					"increment"
+					While(True);
+						Event Player.menuitemsel += 2;
+						If(Event Player.menuitemsel >= Count Of(event player.menu[Event Player.menusel]));
+							Event Player.menuitemsel = 0;
+						End;
+						If(event player.menu[Event Player.menusel][Event Player.menuitemsel + 1] != 0);
+							Break;
+						End;
+					End;
+					Start Rule(menuupdate, Do Nothing);
+					Wait Until(!Is Button Held(Event Player, Button(Primary Fire)), 0.064);
+					If(!Is Button Held(Event Player, Button(Primary Fire)));
+						Loop;
+					End;
+				End;
+			End;
+		End;
+	}
+}
+
+rule("sub menuctlp") {
+	event {Subroutine; menuctlp;}
+	actions {
+		Wait Until(!Is Button Held(Event Player, Button(Secondary Fire)), 99999);
+		While(True);
+			Wait Until(Is Button Held(Event Player, Button(Secondary Fire)), 99999);
+			If(!Event Player.menuopen);
+				Abort;
+			End;
+			While(True);
+				Event Player.menuitemsel -= 2;
+				If(Event Player.menuitemsel < 0);
+					Event Player.menuitemsel = Count Of(event player.menu[Event Player.menusel]) - 2;
+				End;
+				If(event player.menu[Event Player.menusel][Event Player.menuitemsel + 1] != 0);
+					Break;
+				End;
+			End;
+			Start Rule(menuupdate, Do Nothing);
+			Wait Until(!Is Button Held(Event Player, Button(Secondary Fire)), 0.320);
+			If(Is Button Held(Event Player, Button(Secondary Fire)));
+				While(True);
+					"decrement"
+					While(True);
+						Event Player.menuitemsel -= 2;
+						If(Event Player.menuitemsel < 0);
+							Event Player.menuitemsel = Count Of(event player.menu[Event Player.menusel]) - 2;
+						End;
+						If(event player.menu[Event Player.menusel][Event Player.menuitemsel + 1] != 0);
+							Break;
+						End;
+					End;
+					Start Rule(menuupdate, Do Nothing);
+					Wait Until(!Is Button Held(Event Player, Button(Secondary Fire)), 0.064);
+					If(!Is Button Held(Event Player, Button(Secondary Fire)));
+						Loop;
+					End;
+				End;
+			End;
+		End;
+	}
+}
+
+rule("sub menuctlsel") {
+	event {Subroutine; menuctlsel;}
+	actions {
+		Wait Until(Is Button Held(Event Player, Button(Melee)), 99999);
+		If(!Event Player.menuopen);
+			Abort;
+		End;
+		Event Player.cmd = event player.menu[Event Player.menusel][Event Player.menuitemsel + 1];
+		If(Event Player.cmd == -1);
+			Event Player.cmd = event player.menu[Event Player.menusel][Event Player.menuitemsel];
+		End;
+		Wait Until(!Is Button Held(Event Player, Button(Melee)), 99999);
+		Loop;
+	}
+}
+
+rule("misc - init global") {
+	event { ongoing - global; }
+	actions {
+		disable inspector recording;
+		Create HUD Text(all players(all teams), Null, Null, custom string("互动键开关菜单左右键上下近战选择"), right, 1, Color(White), Color(White),
+			color(white), Visible To and String, Default Visibility);
+
+		"music channel"
+		global.channel = 0;
+
+		"keyboard"
+		Global.ascii = custom String("{0} !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
+			Custom String("????????????????????????????????"));
+	}
+}
+
+rule("misc - init player") {
+	event { ongoing - each player; all; all; }
+	actions {
+		"music channel"
+		if (global.channel == 0);
+			enable voice chat(event player);
+			disable voice chat(event player, true, false, true);
+		else if(global.channel == 1);
+			enable voice chat(event player);
+			disable voice chat(event player, false, true, true);
+		end;
+
+		"player title"
+		Event Player.nameid[0] = custom String("{0}", Event Player);
+		Event Player.nameid[1] = Global.idnxt;
+		Global.idnxt += 1;
+		Disable Nameplates(Event Player, All Players(All Teams));
+		Disable Nameplates(All Players(All Teams), Event Player);
+		Create In-World Text(Array Contains(All Heroes, Hero Of(Event Player)) && !Event Player.stat[5] ? All Players(All Teams) : Null,
+			Event Player.nameid[0], Update Every Frame(Eye Position(Event Player) + Up * 0.250), 1, Clip Against Surfaces,
+			Visible To Position and String, Color(White), Default Visibility);
+	}
+}
+
+rule("menu - init global 1") {
+    event { ongoing - global; }
+    actions {
+		global.tmp[0] = array();
+		Global.menu[0] = Array(
+			custom string("[main]"), 0,
+			custom string("perspective >"), 1002,
+			custom string("status >"), 1001,
+			custom string("customize >"), 1003,
+			custom string("flash"), 15,
+			custom string("projectile >"), 1004,
+			custom string("rotate >"), 1005,
+			custom string("emote >"), 1026,
+			custom string("drawing >"), 1027,
+			custom string("change hero"), 58,
+			custom string("toggle protection"), 17,
+			custom string("cancel action"), 35,
+			custom string("hide hud"), 18,
+			custom string("func being fixed.."), 23,
+			custom string("func being fixed.."), 22,
+			custom string("say a word"), 130,
+			custom string("shortcuts >"), 1007,
+			custom string("change title"), 57,
+			custom string("advanced >"), 1028,
+			custom string("movement >"), 1031,
+			custom string("RTS command >"), 1029,
+			custom string("langugae >"), 1032,
+			custom string("about >"), 1033,
+			custom string("operator >"), 999
+		);
+		Global.menu[1] = Array(
+			custom string("[status]"), 0,
+			custom string("hacked"), 1,
+			custom string("burning"), 2,
+			custom string("kncked down"), 3,
+			custom string("asleep"), 4,
+			custom string("frozen"), 5,
+			custom string("unkillable"), 6,
+			custom string("invincible"), 7,
+			custom string("phased out"), 8,
+			custom string("rooted"), 9,
+			custom string("stunned"), 10,
+			custom string("invisible"), 21,
+			custom string("main >"), 1000
+		);
+		Global.menu[2] = Array(
+			custom string("[perspective]"), 0,
+			custom string("default"), 11,
+			custom string("third"), 13,
+			custom string("second"), 12,
+			custom string("fixed"), 14,
+			custom string("main >"), 1000
+		);
+		Global.menu[3] = Array(
+			custom string("[customize]"), 0,
+			custom string("scale hero"), 25,
+			custom string("stop scaling"), 26,
+			custom string(""), 0,
+			custom string("change outline to palette color"), 13000,
+			custom string(""), 0,
+			custom string("main >"), 1000
+		);
+		Global.menu[4] = Array(
+			custom string("[projectile]"), 0,
+			custom string("mass fire (specific heroes)"), 33,
+			custom string("motionless projectile"), 19,
+			custom string("speed up"), 48,
+			custom string("slow down"), 49,
+			custom string("main >"), 1000
+		);
+		Global.menu[5] = Array(
+			custom string("[rotate]"), 0,
+			custom string("horizontally"), 32,
+			custom string("vertically"), 41,
+			custom string("speed up"), 42,
+			custom string("slow down"), 43,
+			custom string("main >"), 1000
+		);
+		Global.menu[6] = Array(
+			custom string("[keyboard-alphabet]"), 0,
+			custom string("A"), 6065,
+			custom string("B"), 6066,
+			custom string("C"), 6067,
+			custom string("D"), 6068,
+			custom string("E"), 6069,
+			custom string("F"), 6070,
+			custom string("G"), 6071,
+			custom string("H"), 6072,
+			custom string("I"), 6073,
+			custom string("J"), 6074,
+			custom string("K"), 6075,
+			custom string("L"), 6076,
+			custom string("M"), 6077,
+			custom string("N"), 6078,
+			custom string("O"), 6079,
+			custom string("P"), 6080,
+			custom string("Q"), 6081,
+			custom string("R"), 6082,
+			custom string("S"), 6083,
+			custom string("T"), 6084,
+			custom string("U"), 6085,
+			custom string("V"), 6086,
+			custom string("W"), 6087,
+			custom string("X"), 6088,
+			custom string("Y"), 6089,
+			custom string("Z"), 6090,
+			custom string("number >"), 1025,
+			custom string("sign >"), 1024,
+			custom string("<space>"), 6032,
+			custom string("<backspace>"), 6127,
+			custom string("<enter>"), 6257,
+			custom string("<cancel>"), 6258
+		);
+		Global.menu[7] = Array(
+			custom string("[shortcut]"), 0,
+			custom string("which key to be used as a shortcut key:"), 0,
+			custom string("primary fire"), 4001,
+			custom string("secondary fire"), 4002,
+			custom string("release primary fire"), 4004,
+			custom string("release secondary fire"), 4005,
+			custom string("release reload"), 4006,
+			custom string("reload"), 4000,
+			custom string("i need healing"), 4003,
+			custom string("clear all shortcuts"), 4100,
+			custom string("main >"), 1000,
+			custom string("select a option and press reload when menu opened to set a shortcut"), 0
+		);
+		Global.menu[8] = Array(
+			custom string("[operator]"), 0,
+			custom string("reset voice chat"), 700,
+			custom string("set default respawn position"), 200,
+			custom string("bots >"), 1030,
+			custom string("start"), 59,
+			custom string("camera"), 36,
+			custom string("disable voice chat"), 94,
+			custom string("declare victory"), 93,
+			custom string("restart match"), 101,
+			custom string("player joining message"), 64,
+			custom string("switch description"), 65,
+			custom string("call to request songs"), 66,
+			custom string("test"), 99,
+			custom string("slow motion >"), 1009,
+			custom string("chorus >"), 1010,
+			custom string("overwatch music maker >"), 1013,
+			custom string("bot >"), 1011,
+			custom string("main >"), 1000
+		);
+		Global.menu[9] = Array(
+			custom string("[slow motion]"), 0,
+			custom string("10% on/off"), 70,
+			custom string("*(√5-1)/2"), 71,
+			custom string("*(√5+1)/2"), 72,
+			custom string("main >"), 1000
+		);
+		Global.menu[10] = Array(
+			custom string("[chorus]"), 0,
+			custom string("knocked down"), 77,
+			custom string("hacked"), 79,
+			custom string("goodbye"), 78,
+			custom string("hello"), 73,
+			custom string("need healing"), 74,
+			custom string("voice line up"), 75,
+			custom string("thanks"), 76,
+			custom string("main >"), 1000
+		);
+		Global.menu[11] = Array(
+			custom string("[bot]"), 0,
+			custom string("test bot"), 98,
+			custom string("zarya"), 97,
+			custom string("bash"), 96,
+			custom string("venom"), 95,
+			custom string("set status"), 90,
+			custom string("disco ball"), 69,
+			custom string("bunny"), 83,
+			custom string("supercharger"), 85,
+			custom string("create bot"), 67,
+			custom string("ghost"), 87,
+			custom string("tennis ball"), 88,
+			custom string("the flash"), 91,
+			custom string("record player"), 92,
+			custom string("destroy bot"), 84,
+			custom string("destroy all bots"), 68,
+			custom string("change team"), 89,
+			custom string("main >"), 1000
+		);
+		"obsolete"
+		Global.menu[12] = Array(
+			custom string("[effect]"), 0,
+			custom string("create effect"), 80,
+			custom string("change effect"), 81,
+			custom string("destroy all effects"), 82,
+			custom string("main >"), 1000
+		);
+		Global.menu[13] = Array(
+			custom string("[overwatch music maker]"), 0,
+			custom string("开始"), 2000,
+			custom string("添加音轨"), 2001,
+			custom string("调整BPM"), 2002,
+			custom string("清空"), 2003,
+			custom string("beat maker"), 2004,
+			custom string("demos >"), 1014,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[14] = Array(
+			custom string("[demos]"), 0,
+			custom string("两只老虎"), 2101,
+			custom string("清除"), 2100,
+			custom string("1"), 2200,
+			custom string("2"), 2201,
+			custom string("4"), 2202,
+			custom string("8"), 2203,
+			custom string("13"), 2204,
+			custom string("112"), 2205,
+			custom string("1124"), 2206,
+			custom string("overwatch music maker >"), 1013
+		);
+		Global.menu[15] = Array(
+			custom string("[effect-page 1/2]"), 0,
+			custom string("brigitte repair pack impact"), 3001,
+			custom string("brigitte repair pack armor"), 3002,
+			custom string("brigitte whip shot heal area"), 3003,
+			custom string("dva self destruct explosion"), 3004,
+			custom string("echo sticky bomb explosion"), 3005,
+			custom string("hanzo sonic arrow initial pulse"), 3006,
+			custom string("lúcio sound barrier cast"), 3007,
+			custom string("moira fade disappear"), 3008,
+			custom string("moira fade reappear"), 3009,
+			custom string("orisa halt implosion"), 3010,
+			custom string("next >"), 1016,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[16] = Array(
+			custom string("[effect-page 2/2]"), 0,
+			custom string("sigma hypersphere implosion"), 3011,
+			custom string("sombra logo"), 3012,
+			custom string("sombra translocator disappear"), 3013,
+			custom string("sombra translocator reappear"), 3014,
+			custom string("sombra emp explosion"), 3015,
+			custom string("symmetra teleporter reappear"), 3016,
+			custom string("tracer recall disappear effect"), 3017,
+			custom string("tracer recall reappear"), 3018,
+			custom string("zarya particle cannon explosion"), 3019,
+			custom string("prev >"), 1015,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[17] = Array(
+			custom string("[sound-page 1/7]"), 0,
+			custom string("debuff impact"), 5001,
+			custom string("buff impact"), 5002,
+			custom string("ring explosion"), 5003,
+			custom string("buff explosion"), 5004,
+			custom string("explosion"), 5005,
+			custom string(""), 5006,
+			custom string(""), 5007,
+			custom string(""), 5008,
+			custom string("随机配置快捷键"), 5100,
+			custom string("demo"), 5201,
+			custom string("record on/off"), 5101,
+			custom string("play on/off"), 5102,
+			custom string("next >"), 1018,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[18] = Array(
+			custom string("[sound-page 2/7]"), 0,
+			custom string(""), 5009,
+			custom string(""), 5010,
+			custom string(""), 5011,
+			custom string(""), 5012,
+			custom string(""), 5013,
+			custom string(""), 5014,
+			custom string(""), 5015,
+			custom string(""), 5016,
+			custom string("next >"), 1019,
+			custom string("prev >"), 1017,
+			custom string("main >"), 1000
+		);
+		Global.menu[19] = Array(
+			custom string("[sound-page 3/7]"), 0,
+			custom string(""), 5017,
+			custom string(""), 5018,
+			custom string(""), 5019,
+			custom string(""), 5020,
+			custom string(""), 5021,
+			custom string(""), 5022,
+			custom string(""), 5023,
+			custom string(""), 5024,
+			custom string("next >"), 1020,
+			custom string("prev >"), 1018,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[20] = Array(
+			custom string("[sound-page 4/7]"), 0,
+			custom string(""), 5025,
+			custom string(""), 5026,
+			custom string(""), 5027,
+			custom string(""), 5028,
+			custom string(""), 5029,
+			custom string(""), 5030,
+			custom string(""), 5031,
+			custom string(""), 5032,
+			custom string("next >"), 1021,
+			custom string("prev >"), 1019,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[21] = Array(
+			custom string("[sound-page 5/7]"), 0,
+			custom string(""), 5033,
+			custom string(""), 5034,
+			custom string(""), 5035,
+			custom string(""), 5036,
+			custom string(""), 5037,
+			custom string(""), 5038,
+			custom string(""), 5039,
+			custom string(""), 5040,
+			custom string("next >"), 1022,
+			custom string("prev >"), 1020,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[22] = Array(
+			custom string("[sound-page 6/7]"), 0,
+			custom string(""), 5041,
+			custom string(""), 5042,
+			custom string(""), 5043,
+			custom string(""), 5044,
+			custom string(""), 5045,
+			custom string(""), 5046,
+			custom string(""), 5047,
+			custom string(""), 5048,
+			custom string("next >"), 1023,
+			custom string("prev >"), 1021,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[23] = Array(
+			custom string("[sound-page 7/7]"), 0,
+			custom string(""), 5049,
+			custom string(""), 5050,
+			custom string(""), 5051,
+			custom string("prev >"), 1022,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[24] = Array(
+			custom string("[keyboard-sign]"), 0,
+			custom string("~"), 6126,
+			custom string("!"), 6033,
+			custom string("@"), 6064,
+			custom string("#"), 6035,
+			custom string("$"), 6036,
+			custom string("%"), 6037,
+			custom string("^"), 6094,
+			custom string("&"), 6038,
+			custom string("*"), 6042,
+			custom string("("), 6040,
+			custom string(")"), 6041,
+			custom string("_"), 6095,
+			custom string("+"), 6043,
+			custom string("`"), 6096,
+			custom string("-"), 6045,
+			custom string("="), 6061,
+			custom string(":"), 6058,
+			custom string(";"), 6059,
+			custom string("\""), 6034,
+			custom string("'"), 6039,
+			custom string("<"), 6060,
+			custom string(">"), 6062,
+			custom string("?"), 6063,
+			custom string(","), 6044,
+			custom string("."), 6046,
+			custom string("/"), 6047,
+			custom string("number >"), 1025,
+			custom string("alphabet >"), 1006
+		);
+		Global.menu[25] = Array(
+			custom string("[keyboard-number]"), 0,
+			custom string("1"), 6049,
+			custom string("2"), 6050,
+			custom string("3"), 6051,
+			custom string("4"), 6052,
+			custom string("5"), 6053,
+			custom string("6"), 6054,
+			custom string("7"), 6055,
+			custom string("8"), 6056,
+			custom string("9"), 6057,
+			custom string("0"), 6048,
+			custom string("sign >"), 1024,
+			custom string("alphabet >"), 1006,
+			custom string("<space>"), 6032,
+			custom string("<backspace>"), 6127,
+			custom string("<enter>"), 6257,
+			custom string("<cancel>"), 6258
+		);
+		Global.menu[26] = Array(
+			custom string("[emote]"), 0,
+			custom string("hero emote:"), 0,
+			custom string("synchronize"), 7000,
+			custom string("line alignment"), 7001,
+			custom string(""), 0,
+			custom string("emote repetition"), 7100,
+			custom string("main >"), 1000
+		);
+		Global.menu[27] = Array(
+			custom string("[drawing]"), 0,
+			custom string("on/off"), 8000,
+			custom string("line/ball"), 8001,
+			custom string("palette >"), 500,
+			custom string("drawing invisibility on/off"), 8003,
+			custom string("fix position"), 8004,
+			custom string("detach position"), 8006,
+			custom string("switch position"), 8005,
+			custom string("main >"), 1000
+		);
+		If(Global.settings[0]);
+			Global.menu[28] = Array(
+			custom string("[advanced]"), 0,
+			custom string("设置重生点"), 201,
+			custom string("刷新语音通道"), 34,
+			custom string("overwatch music maker >"), 998,
+			custom string("奥丽莎打印机"), 86,
+			custom string("主菜单 >"), 1000
+			);
+		Else;
+			Global.menu[28] = Array(
+			custom string("【高级】"), 0,
+			custom string("设置重生点"), 201,
+			custom string("刷新语音通道"), 34,
+			custom string("overwatch music maker >"), 998,
+			custom string("奥丽莎打印机"), 86,
+			custom string("特效 >"), 1015,
+			custom string("声音 >"), 1017,
+			custom string("主菜单 >"), 1000
+			);
+		End;
+		Global.menu[29] = Array(
+			custom string("[RTS commands]"), 0,
+			custom string("move"), 10001,
+			custom string("primary fire attack"), 10002,
+			custom string("secondary fire attack"), 10007,
+			custom string("patrol"), 10003,
+			custom string("stop"), 10000,
+			custom string("cloak"), 10008,
+			custom string("ability 1"), 10004,
+			custom string("ability 2"), 10005,
+			custom string("ultimate"), 10006,
+			custom string("select"), 10100,
+			custom string("unselect"), 10102,
+			custom string("delete bots"), 10103,
+			custom string("change team for bots"), 89,
+			custom string("create bot"), 87,
+			custom string("main >"), 1000
+		);
+		Global.menu[30] = Array(
+			custom string("[bots]"), 0,
+			custom string("ult bot"), 11100,
+			custom string("position-fixed bot"), 11101,
+			custom string("main >"), 1000
+		);
+		Global.menu[31] = Array(
+			custom string("[movement]"), 0,
+			custom string("default"), 12000,
+			custom string("riding"), 12001,
+			custom string("main >"), 1000
+		);
+		Global.menu[32] = array(
+			custom string("[language]"), 0,
+			custom string("english"), 800,
+			custom string("简体中文"), 801,
+			custom string("main >"), 1000
+		);
+		global.menu[33] = array(
+			custom string("[about]"), 0,
+			custom string("If you like the idea of sharing knowledge,"), 0,
+			custom string("and believe in rationalism and love,"), 0,
+			custom string("I would appreciate your adding and having a discussion."), 0,
+			custom string("You can see my BattleTag at the mode description."), 0,
+			custom string("main >"), 1000
+		);
+		global.menu[34] = array(
+			custom string("[palette]"), 0,
+			custom string("red +"), 14000,
+			custom string("red -"), 14001,
+			custom string("green +"), 14002,
+			custom string("green -"), 14003,
+			custom string("blue +"), 14004,
+			custom string("blue -"), 14005,
+			custom string("main >"), 501
+		);
+
+		modify global variable at index(tmp, 0, append to array, array(global.menu));
+	}
+}
+
+rule("menu - init global 2") {
+	event { ongoing - global; }
+	actions {
+		Global.menu[0] = Array(
+			custom string("【主菜单】"), 0,
+			custom string("视角 >"), 1002,
+			custom string("状态 >"), 1001,
+			custom string("个性化 >"), 1003,
+			custom string("闪现 >"), 15,
+			custom string("子弹 >"), 1004,
+			custom string("旋转 >"), 1005,
+			custom string("表情 >"), 1026,
+			custom string("绘画 >"), 1027,
+			custom string("更换英雄"), 58,
+			custom string("保护"), 17,
+			custom string("取消后腰"), 35,
+			custom string("HUD开关"), 18,
+			custom string("功能修复中.."), 23,
+			custom string("功能修复中.."), 22,
+			custom string("喊话"), 130,
+			custom string("快捷键 >"), 1007,
+			custom string("改变称号"), 57,
+			custom string("高级 >"), 1028,
+			custom string("移动模式 >"), 1031,
+			custom string("RTS命令 >"), 1029,
+			custom string("语言 >"), 1032,
+			custom string("关于 >"), 1033,
+			custom string("OP >"), 999
+		);
+		Global.menu[1] = Array(
+			custom string("【状态】"), 0,
+			custom string("被黑"), 1,
+			custom string("燃烧"), 2,
+			custom string("击倒"), 3,
+			custom string("沉睡"), 4,
+			custom string("冰冻"), 5,
+			custom string("不死"), 6,
+			custom string("无敌"), 7,
+			custom string("相移"), 8,
+			custom string("定身"), 9,
+			custom string("击晕"), 10,
+			custom string("隐身"), 21,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[2] = Array(
+			custom string("【视角】"), 0,
+			custom string("默认"), 11,
+			custom string("第三人称"), 13,
+			custom string("第二人称"), 12,
+			custom string("固定视角"), 14,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[3] = Array(
+			custom string("【个性化】"), 0,
+			custom string("改变大小"), 25,
+			custom string("恢复大小"), 26,
+			custom string(""), 0,
+			custom string("将轮廓设置为调色板颜色"), 13000,
+			custom string(""), 0,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[4] = Array(
+			custom string("【子弹】"), 0,
+			custom string("高攻速（特定英雄）"), 33,
+			custom string("静止子弹"), 19,
+			custom string("加速"), 48,
+			custom string("减速"), 49,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[5] = Array(
+			custom string("【旋转】"), 0,
+			custom string("水平"), 32,
+			custom string("垂直"), 41,
+			custom string("加速"), 42,
+			custom string("减速"), 43,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[6] = Array(
+			custom string("【键盘-字母】"), 0,
+			custom string("A"), 6065,
+			custom string("B"), 6066,
+			custom string("C"), 6067,
+			custom string("D"), 6068,
+			custom string("E"), 6069,
+			custom string("F"), 6070,
+			custom string("G"), 6071,
+			custom string("H"), 6072,
+			custom string("I"), 6073,
+			custom string("J"), 6074,
+			custom string("K"), 6075,
+			custom string("L"), 6076,
+			custom string("M"), 6077,
+			custom string("N"), 6078,
+			custom string("O"), 6079,
+			custom string("P"), 6080,
+			custom string("Q"), 6081,
+			custom string("R"), 6082,
+			custom string("S"), 6083,
+			custom string("T"), 6084,
+			custom string("U"), 6085,
+			custom string("V"), 6086,
+			custom string("W"), 6087,
+			custom string("X"), 6088,
+			custom string("Y"), 6089,
+			custom string("Z"), 6090,
+			custom string("数字 >"), 1025,
+			custom string("符号 >"), 1024,
+			custom string("<空格>"), 6032,
+			custom string("<退格>"), 6127,
+			custom string("<回车>"), 6257,
+			custom string("<取消>"), 6258
+		);
+		Global.menu[7] = Array(
+			custom string("【快捷键】"), 0,
+			custom string("选择要设定的快捷键："), 0,
+			custom string("主武器"), 4001,
+			custom string("副武器"), 4002,
+			custom string("停止主武器时"), 4004,
+			custom string("停止副武器时"), 4005,
+			custom string("松开换弹键"), 4006,
+			custom string("换弹键"), 4000,
+			custom string("需要治疗"), 4003,
+			custom string("清除所有快捷键"), 4100,
+			custom string("主菜单 >"), 1000,
+			custom string("选定菜单选项后按下换弹键以设定快捷键"), 0
+		);
+		Global.menu[8] = Array(
+			custom string("【OP】"), 0,
+			custom string("刷新语音聊天"), 700,
+			custom string("设置默认重生点"), 200,
+			custom string("机器人 >"), 1030,
+			custom string("开始"), 59,
+			custom string("开关全体共用固定视角"), 36,
+			custom string("禁用玩家语音"), 94,
+			custom string("宣布胜利"), 93,
+			custom string("重开比赛"), 101,
+			custom string("玩家加入时应用栏提示（会重生房主）"), 64,
+			custom string("改变房间描述"), 65,
+			custom string("呼叫点歌"), 66,
+			custom string("测试"), 99,
+			custom string("慢动作 >"), 1009,
+			custom string("合唱 >"), 1010,
+			custom string("守望先锋音乐制造机 >"), 1013,
+			custom string("机器人 >"), 1011,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[9] = Array(
+			custom string("【慢动作】"), 0,
+			custom string("开关0.1倍速"), 70,
+			custom string("减慢一个黄金比例"), 71,
+			custom string("加快一个黄金比例"), 72,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[10] = Array(
+			custom string("【合唱】"), 0,
+			custom string("击倒"), 77,
+			custom string("被黑"), 79,
+			custom string("再见"), 78,
+			custom string("你好"), 73,
+			custom string("需要治疗"), 74,
+			custom string("语音（上）"), 75,
+			custom string("感谢"), 76,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[11] = Array(
+			custom string("【机器人】"), 0,
+			custom string("测试机器人"), 98,
+			custom string("查莉娅"), 97,
+			custom string("冲撞的锤妹"), 96,
+			custom string("毒液"), 95,
+			custom string("设置状态"), 90,
+			custom string("迪斯科灯球"), 69,
+			custom string("小兔"), 83,
+			custom string("超充能器"), 85,
+			custom string("创建机器人"), 67,
+			custom string("傀儡"), 87,
+			custom string("网球"), 88,
+			custom string("闪电侠"), 91,
+			custom string("留声机"), 92,
+			custom string("删除机器人"), 84,
+			custom string("删除所有机器人"), 68,
+			custom string("改变机器人队伍"), 89,
+			custom string("主菜单 >"), 1000
+		);
+		"obsolete"
+		Global.menu[12] = Array(
+			custom string("【效果】"), 0,
+			custom string("创建效果"), 80,
+			custom string("改变效果"), 81,
+			custom string("删除所有效果"), 82,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[13] = Array(
+			custom string("【守望先锋音乐制造机】"), 0,
+			custom string("开始"), 2000,
+			custom string("添加音轨"), 2001,
+			custom string("调整BPM"), 2002,
+			custom string("清空"), 2003,
+			custom string("beat maker"), 2004,
+			custom string("示例 >"), 1014,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[14] = Array(
+			custom string("【示例】"), 0,
+			custom string("两只老虎"), 2101,
+			custom string("清楚"), 2100,
+			custom string("1"), 2200,
+			custom string("2"), 2201,
+			custom string("4"), 2202,
+			custom string("8"), 2203,
+			custom string("13"), 2204,
+			custom string("112"), 2205,
+			custom string("1124"), 2206,
+			custom string("守望先锋音乐制造机 >"), 1013
+		);
+		Global.menu[15] = Array(
+			custom string("【效果 1/2页】"), 0,
+			custom string(""), 3001,
+			custom string(""), 3002,
+			custom string(""), 3003,
+			custom string(""), 3004,
+			custom string(""), 3005,
+			custom string(""), 3006,
+			custom string(""), 3007,
+			custom string(""), 3008,
+			custom string(""), 3009,
+			custom string(""), 3010,
+			custom string("下一页 >"), 1016,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[16] = Array(
+			custom string("【效果 2/2页】"), 0,
+			custom string(""), 3011,
+			custom string(""), 3012,
+			custom string(""), 3013,
+			custom string(""), 3014,
+			custom string(""), 3015,
+			custom string(""), 3016,
+			custom string(""), 3017,
+			custom string(""), 3018,
+			custom string(""), 3019,
+			custom string("上一页 >"), 1015,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[17] = Array(
+			custom string("【音效-1/7页】"), 0,
+			custom string(""), 5001,
+			custom string(""), 5002,
+			custom string(""), 5003,
+			custom string(""), 5004,
+			custom string(""), 5005,
+			custom string(""), 5006,
+			custom string(""), 5007,
+			custom string(""), 5008,
+			custom string("随机配置快捷键"), 5100,
+			custom string("示例"), 5201,
+			custom string("开始录制"), 5101,
+			custom string("播放"), 5102,
+			custom string("下一页 >"), 1018,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[18] = Array(
+			custom string("【音效 2/7页】"), 0,
+			custom string(""), 5009,
+			custom string(""), 5010,
+			custom string(""), 5011,
+			custom string(""), 5012,
+			custom string(""), 5013,
+			custom string(""), 5014,
+			custom string(""), 5015,
+			custom string(""), 5016,
+			custom string("下一页 >"), 1019,
+			custom string("上一页 >"), 1017,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[19] = Array(
+			custom string("【音效 3/7页】"), 0,
+			custom string(""), 5017,
+			custom string(""), 5018,
+			custom string(""), 5019,
+			custom string(""), 5020,
+			custom string(""), 5021,
+			custom string(""), 5022,
+			custom string(""), 5023,
+			custom string(""), 5024,
+			custom string("下一页 >"), 1020,
+			custom string("上一页 >"), 1018,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[20] = Array(
+			custom string("【音效 4/7页】"), 0,
+			custom string(""), 5025,
+			custom string(""), 5026,
+			custom string(""), 5027,
+			custom string(""), 5028,
+			custom string(""), 5029,
+			custom string(""), 5030,
+			custom string(""), 5031,
+			custom string(""), 5032,
+			custom string(""), 1021,
+			custom string(""), 1019,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[21] = Array(
+			custom string("【音效 5/7页】"), 0,
+			custom string(""), 5033,
+			custom string(""), 5034,
+			custom string(""), 5035,
+			custom string(""), 5036,
+			custom string(""), 5037,
+			custom string(""), 5038,
+			custom string(""), 5039,
+			custom string(""), 5040,
+			custom string(""), 1022,
+			custom string(""), 1020,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[22] = Array(
+			custom string("【音效 6/7页】"), 0,
+			custom string(""), 5041,
+			custom string(""), 5042,
+			custom string(""), 5043,
+			custom string(""), 5044,
+			custom string(""), 5045,
+			custom string(""), 5046,
+			custom string(""), 5047,
+			custom string(""), 5048,
+			custom string(""), 1023,
+			custom string(""), 1021,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[23] = Array(
+			custom string("【音效 7/7页】"), 0,
+			custom string(""), 5049,
+			custom string(""), 5050,
+			custom string(""), 5051,
+			custom string(""), 1022,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[24] = Array(
+			custom string("【键盘-符号】"), 0,
+			custom string(""), 6126,
+			custom string(""), 6033,
+			custom string(""), 6064,
+			custom string(""), 6035,
+			custom string(""), 6036,
+			custom string(""), 6037,
+			custom string(""), 6094,
+			custom string(""), 6038,
+			custom string(""), 6042,
+			custom string(""), 6040,
+			custom string(""), 6041,
+			custom string(""), 6095,
+			custom string(""), 6043,
+			custom string(""), 6096,
+			custom string(""), 6045,
+			custom string(""), 6061,
+			custom string(""), 6058,
+			custom string(""), 6059,
+			custom string(""), 6034,
+			custom string(""), 6039,
+			custom string(""), 6060,
+			custom string(""), 6062,
+			custom string(""), 6063,
+			custom string(""), 6044,
+			custom string(""), 6046,
+			custom string(""), 6047,
+			custom string("数字 >"), 1025,
+			custom string("字母 >"), 1006
+		);
+		Global.menu[25] = Array(
+			custom string("【键盘-数字】"), 0,
+			custom string(""), 6049,
+			custom string(""), 6050,
+			custom string(""), 6051,
+			custom string(""), 6052,
+			custom string(""), 6053,
+			custom string(""), 6054,
+			custom string(""), 6055,
+			custom string(""), 6056,
+			custom string(""), 6057,
+			custom string(""), 6048,
+			custom string(""), 1024,
+			custom string(""), 1006,
+			custom string(""), 6032,
+			custom string(""), 6127,
+			custom string(""), 6257,
+			custom string("<取消>"), 6258
+		);
+		Global.menu[26] = Array(
+			custom string("【表情】"), 0,
+			custom string(""), 0,
+			custom string("同步"), 7000,
+			custom string("线形排列"), 7001,
+			custom string(""), 0,
+			custom string("重复表情"), 7100,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[27] = Array(
+			custom string("【绘画】"), 0,
+			custom string("开关"), 8000,
+			custom string("线/球"), 8001,
+			custom string("调色板 >"), 500,
+			custom string("屏蔽所有绘画"), 8003,
+			custom string("固定位置"), 8004,
+			custom string("解除固定"), 8006,
+			custom string("切换位置"), 8005,
+			custom string("主菜单 >"), 1000
+		);
+		If(Global.settings[0]);
+			Global.menu[28] = Array(
+			custom string("【高级】"), 0,
+			custom string("设置重生点"), 201,
+			custom string("刷新语音通道"), 34,
+			custom string("守望先锋音乐制造机 >"), 998,
+			custom string("奥丽莎打印机"), 86,
+			custom string("主菜单 >"), 1000
+			);
+		Else;
+			Global.menu[28] = Array(
+			custom string("【高级】"), 0,
+			custom string("设置重生点"), 201,
+			custom string("刷新语音通道"), 34,
+			custom string("守望先锋音乐制造机 >"), 998,
+			custom string("奥丽莎打印机"), 86,
+			custom string("特效 >"), 1015,
+			custom string("声音 >"), 1017,
+			custom string("主菜单 >"), 1000
+			);
+		End;
+		Global.menu[29] = Array(
+			custom string("【RTS命令】"), 0,
+			custom string("移动"), 10001,
+			custom string("攻击"), 10002,
+			custom string("副武器攻击"), 10007,
+			custom string("巡逻"), 10003,
+			custom string("停止"), 10000,
+			custom string("隐身"), 10008,
+			custom string("技能1"), 10004,
+			custom string("技能2"), 10005,
+			custom string("终极技能"), 10006,
+			custom string("选择"), 10100,
+			custom string("取消所有选择"), 10102,
+			custom string("删除所有机器人"), 10103,
+			custom string("改变机器人队伍"), 89,
+			custom string("创建机器人"), 87,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[30] = Array(
+			custom string("【机器人】"), 0,
+			custom string("大招bot"), 11100,
+			custom string("固定bot"), 11101,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[31] = Array(
+			custom string("【移动】"), 0,
+			custom string("默认"), 12000,
+			custom string("坐骑"), 12001,
+			custom string("主菜单 >"), 1000
+		);
+		Global.menu[32] = array(
+			custom string("【语言】"), 0,
+			custom string("english"), 800,
+			custom string("简体中文"), 801,
+			custom string("主菜单 >"), 1000
+		);
+		global.menu[33] = array(
+			custom string("【关于】"), 0,
+			custom string("如果你喜欢分享知识，"), 0,
+			custom string("相信理性与爱，"), 0,
+			custom string("我们可以加个好友团结一下。"), 0,
+			custom string("我（模式作者）的战网昵称见简介"), 0,
+			custom string("主菜单 >"), 1000
+		);
+		global.menu[34] = array(
+			custom string("【调色板】"), 0,
+			custom string("红 +"), 14000,
+			custom string("红 -"), 14001,
+			custom string("绿 +"), 14002,
+			custom string("绿 -"), 14003,
+			custom string("蓝 +"), 14004,
+			custom string("蓝 -"), 14005,
+			custom string("主菜单 >"), 501
+		);
+
+		modify global variable at index(tmp, 0, append to array, array(global.menu));
+		global.menu = global.tmp[0];
+	}
+}
+
+rule("menu - init player") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		"<interface> initial cursor position"
+		Event Player.menusel = 32;
+		Event Player.menuitemsel = 2;
+		event player.menu = global.menu[0];
+		While(True);
+			Wait Until(!Is Button Held(Event Player, Button(Interact)), 99999);
+			Wait Until(Is Button Held(Event Player, Button(Interact)) && global.menuable == 0, 99999);
+			Event Player.menuopen = True;
+			Disallow Button(Event Player, Button(Primary Fire));
+			Disallow Button(Event Player, Button(Secondary Fire));
+			Disallow Button(Event Player, Button(Melee));
+			Disallow Button(Event Player, Button(Reload));
+			Start Rule(menuctln, Restart Rule);
+			Start Rule(menuctlp, Restart Rule);
+			Start Rule(menuctlsel, Restart Rule);
+			Start Rule(menuupdate, Do Nothing);
+			Create HUD Text(Event Player, Null, Null, Event Player.menutxt, Top, 1, Color(White), Color(White),
+				Global.palette[Global.settings[1]], Visible To and String, Default Visibility);
+			Event Player.menuid = Last Text ID;
+			Wait Until(!Is Button Held(Event Player, Button(Interact)) || !global.menuable == 0, 99999);
+			Wait Until(Is Button Held(Event Player, Button(Interact)) || !global.menuable == 0, 99999);
+			Event Player.menuopen = False;
+			Allow Button(Event Player, Button(Melee));
+			Allow Button(Event Player, Button(Reload));
+			If(!Event Player.subflags[2]);
+				Allow Button(Event Player, Button(Primary Fire));
+				Allow Button(Event Player, Button(Secondary Fire));
+			End;
+			Destroy HUD Text(Event Player.menuid);
+			If(Event Player.contiarg[0]);
+				Call Subroutine(contiswitch);
+			End;
+		End;
+	}
+}
+
+rule("sub - misc changechnl") {
+	event { subroutine; changechnl; }
+	actions {
+		global.channel = (global.channel + 1) % 2;
+		if (global.channel == 0);
+			enable voice chat(all players(all teams));
+			disable voice chat(all players(all teams), true, false, true);
+		else if(global.channel == 1);
+			enable voice chat(all players(all teams));
+			disable voice chat(all players(all teams), false, true, true);
+		end;
+	}
+}
+
+rule("menu - command") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		Wait Until(Event Player.cmd != 0, 99999);
+		If(0 <= Event Player.cmd && Event Player.cmd < 1000);
+			If(Event Player.cmd == 86);
+				If(Event Player.oriprint[0]);
+					If(Event Player.stat[4] < 16 && Hero Of(Event Player) == Hero(Orisa));
+						Event Player.inputuse = 1;
+						Event Player.cmd = 6256;
+						Loop;
+					Else;
+						Small Message(Event Player, Custom String("hello world!"));
+					End;
+				End;
+			Else If(Event Player.cmd == 130);
+				Event Player.inputuse = 0;
+				Event Player.cmd = 6256;
+				Loop;
+			"operator >"
+			Else If(Event Player.cmd == 999);
+				If(Event Player == Host Player);
+					Event Player.cmd = 1008;
+					Loop;
+				Else;
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			"overwatch music maker >"
+			Else If(Event Player.cmd == 998);
+				If(Event Player.menuauth % 8 > 4);
+					Event Player.cmd = 1013;
+					Loop;
+				Else;
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			else if(500 <= Event Player.cmd && Event Player.cmd < 800);
+				if(event player.cmd == 500);
+					"call palette"
+					create effect(event player, sphere, event player.palette[0],
+						world vector of(vector(-1, 0, 1), event player, rotation and translation)
+							+ eye position(event player) - position of(event player), 1/16,
+						position radius and color);
+					event player.palette[4] = last created entity;
+					Create HUD Text(Event Player, custom string("red: {0} green:{1} blue:{2}",
+						update every frame(event player.palette[1]),
+						update every frame(event player.palette[2]),
+						update every frame(event player.palette[3])),
+						Null, Null,
+						right, 0, Color(White), Color(White), Color(White),
+						String, Default Visibility);
+					event player.palette[5] = last text id;
+					event player.cmd = 1034;
+					loop;
+				else if(event player.cmd == 501);
+					"exit palette"
+					destroy effect(event player.palette[4]);
+					destroy hud text(event player.palette[5]);
+					event player.cmd = 1000;
+					loop;
+				end;
+			else If(0 <= Event Player.cmd && Event Player.cmd < 1000);
+				global.arg[0] = event player.cmd;
+				call subroutine(cmdmisc);
+			end;
+		// ----------------------------------------------------------------
+		Else If(1000 <= Event Player.cmd && Event Player.cmd < 2000);
+			"set curitem to -x"
+			Event Player.menusel = Event Player.cmd - 1000;
+			If(Event Player.menuitemsel >= 0);
+				Event Player.menuitemsel = -2;
+			Else;
+				Event Player.menuitemsel = -2 - Event Player.menuitemsel;
+			End;
+			While(True);
+				Event Player.menuitemsel += 2;
+				If(Event Player.menuitemsel >= Count Of(event player.menu[Event Player.menusel]));
+					Event Player.menuitemsel = 0;
+				End;
+				If(event player.menu[Event Player.menusel][Event Player.menuitemsel + 1] != 0);
+					Break;
+				End;
+				Start Rule(menuupdate, Do Nothing);
+			End;
+		Else If(2000 <= Event Player.cmd && Event Player.cmd < 3000);
+			Small Message(Event Player, Custom String("hello world!"));
+		Else If(3000 <= Event Player.cmd && Event Player.cmd < 4000);
+			Global.arg[0] = Event Player.cmd - 3001;
+			Call Subroutine(effect);
+		Else If(4000 <= Event Player.cmd && Event Player.cmd < 5000);
+			If(Event Player.cmd == 4100);
+				"reset shortcuts"
+				Event Player.scs = Array(0, 0, 0);
+			Else;
+				Event Player.scset = Event Player.cmd - 4000;
+				Small Message(Event Player, String("", Input Binding String(Button(Reload))));
+				Event Player.cmd = 1000;
+				Loop;
+			End;
+		Else If(5000 <= Event Player.cmd && Event Player.cmd < 6000);
+			If(5001 <= Event Player.cmd && Event Player.cmd <= 5051);
+				Global.arg[0] = Event Player.cmd - 5001;
+				Call Subroutine(cmdsnd);
+			Else If(5100 <= Event Player.cmd && Event Player.cmd < 5200);
+				If(Event Player.cmd == 5100);
+					Event Player.scs[0] = Random Integer(5001, 5051);
+					Event Player.scs[1] = Random Integer(5001, 5051);
+					Event Player.scs[2] = Random Integer(5001, 5051);
+				Else If(Event Player.cmd == 5101);
+					If(Event Player.subflags[5]);
+						Event Player.subflags[5] = False;
+					Else;
+						Start Rule(sndrec, Restart Rule);
+					End;
+				Else If(Event Player.cmd == 5102);
+					If(Event Player.subflags[6]);
+						Event Player.subflags[6] = False;
+					Else;
+						Start Rule(sndplay, Do Nothing);
+					End;
+				End;
+			Else If(5200 <= Event Player.cmd && Event Player.cmd < 5300);
+				If(Event Player.cmd == 5201);
+					Event Player.sndrec = Array(0, 0.500, 1, 0.500, 0, 0.500, 3, 0.500);
+				End;
+			End;
+		Else If(6000 <= Event Player.cmd && Event Player.cmd < 7000);
+			Event Player.cmd -= 6000;
+			If(0 <= Event Player.cmd && Event Player.cmd <= 126);
+				Event Player.input = custom String("{0}{1}", Event Player.input, Char In String(Global.ascii, Event Player.cmd));
+			"backspace"
+			Else If(Event Player.cmd == 127);
+				Event Player.input = String Slice(Event Player.input, 0, String Length(Event Player.input) - 1);
+			"open input"
+			Else If(Event Player.cmd == 256);
+				Event Player.input = Custom String("");
+				Create HUD Text(Event Player, Event Player.input, Null, Null, Top, 0, Color(White), Color(White), Color(White),
+					Visible To and String, Default Visibility);
+				Event Player.inputid = Last Text ID;
+				Event Player.cmd = 1006;
+				Loop;
+			"enter"
+			Else If(Event Player.cmd == 257);
+				Destroy HUD Text(Event Player.inputid);
+				"input the string"
+				If(Event Player.inputuse == 0);
+					Big Message(All Players(All Teams), custom String("{0}: {1}", Event Player, Event Player.input));
+					Event Player.cmd = 1000;
+				Else If(Event Player.inputuse == 1);
+					If(String Length(Event Player.input) > 14);
+						Small Message(Event Player, Custom String("hello world!"));
+					Else;
+						Event Player.stat[2] = 4;
+						Event Player.oriprint[2] = Eye Position(Event Player);
+						"render"
+						Global.tmp = Array(0, -5 / 4 - 3 / 4 * String Length(Event Player.input), -1, String Length(Event Player.input));
+						Event Player.oriprint[3] = Array();
+						For Global Variable(index, 0, String Length(Event Player.input), 1);
+							Global.tmp[1] += 3 / 2;
+							Global.tmp[0] = Index Of String Char(Custom String("hello world!"), Char In String(Event Player.input, Global.index));
+							Modify Player Variable At Index(Event Player, oriprint, 3, Append To Array, Mapped Array(Array(Array(0, 0, 1 / 2, 2, 1, 1 / 2, 2,
+								1, 0, 1, 1 / 4, 1, 3 / 4, 1, 1), Array(0, 2, 0, 0, 1, 0, 2, 1 / 2, 2, 1, 1 / 2, 2, 1, 3 / 2, 1, 1, 3 / 2, 1 / 2, 1, 1, 1 / 2,
+								1, 0, 1, 1, 1 / 2, 1, 1, 1 / 2, 1, 1, 1 / 2, 1 / 2, 0, 1, 1 / 2, 0, 0, 0, 1), Array(1, 2, 1 / 2, 2, 1, 1 / 2, 2, 0, 3 / 2, 1,
+								0, 3 / 2, 0, 1 / 2, 1, 0, 1 / 2, 1 / 2, 0, 1, 1 / 2, 0, 1, 0, 1), Array(0, 2, 0, 0, 1, 0, 2, 1 / 2, 2, 1, 1 / 2, 2, 1, 3 / 2,
+								1, 1, 3 / 2, 1, 1 / 2, 1, 1, 1 / 2, 1 / 2, 0, 1, 1 / 2, 0, 0, 0, 1), Array(0, 2, 0, 0, 1, 0, 0, 1, 0, 1, 0, 2, 1, 2, 1, 0, 1,
+								1, 1, 1), Array(0, 2, 0, 0, 1, 0, 2, 1, 2, 1, 0, 1, 1, 1, 1), Array(1, 3 / 2, 2 / 3, 2, 1, 2 / 3, 2, 1 / 3, 2, 1, 1 / 3, 2, 0,
+								3 / 2, 1, 0, 3 / 2, 0, 1 / 2, 1, 0, 1 / 2, 1 / 3, 0, 1, 1 / 3, 0, 2 / 3, 0, 1, 2 / 3, 0, 1, 1 / 2, 1, 1, 1 / 2, 1, 1, 1, 1 / 2,
+								1, 1, 1, 1), Array(0, 2, 0, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 0, 1), Array(0, 2, 1, 2, 1, 1 / 2, 2, 1 / 2, 0, 1, 0, 0, 1, 0, 1),
+								Array(0, 2, 1, 2, 1, 1 / 2, 2, 1 / 2, 1 / 4, 1, 1 / 2, 1 / 4, 1 / 4, 0, 1, 1 / 4, 0, 0, 0, 1), Array(0, 2, 0, 0, 1, 1, 2, 0, 1,
+								1, 0, 1, 1, 0, 1), Array(0, 2, 0, 0, 1, 0, 0, 1, 0, 1), Array(0, 2, 0, 0, 1, 0, 2, 1 / 2, 1, 1, 1 / 2, 1, 1, 2, 1, 1, 2, 1, 0,
+								1), Array(0, 2, 0, 0, 1, 0, 2, 1, 0, 1, 1, 0, 1, 2, 1), Array(0, 2, 1, 2, 1, 1, 2, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 2, 1),
+								Array(0, 2, 0, 0, 1, 0, 2, 1 / 2, 2, 1, 1 / 2, 2, 1, 3 / 2, 1, 1, 3 / 2, 1 / 2, 1, 1, 1 / 2, 1, 0, 1, 1), Array(0, 1, 1 / 3, 2,
+								1, 1 / 3, 2, 2 / 3, 2, 1, 2 / 3, 2, 1, 1, 1, 1, 1, 2 / 3, 0, 1, 2 / 3, 0, 1 / 3, 0, 1, 1 / 3, 0, 0, 1, 1, 1 / 2, 1, 1, 0, 1),
+								Array(0, 2, 0, 0, 1, 0, 2, 1 / 2, 2, 1, 1 / 2, 2, 1, 3 / 2, 1, 1, 3 / 2, 1 / 2, 1, 1, 1 / 2, 1, 0, 1, 1, 0, 1, 1, 0, 1), Array(
+								1, 2, 1 / 2, 2, 1, 1 / 2, 2, 0, 3 / 2, 1, 0, 3 / 2, 1, 1 / 2, 1, 1, 1 / 2, 1 / 2, 0, 1, 1 / 2, 0, 0, 0, 1), Array(0, 2, 1, 2,
+								1, 1 / 2, 2, 1 / 2, 0, 1), Array(0, 2, 0, 1, 1, 0, 1, 1 / 3, 0, 1, 1 / 3, 0, 2 / 3, 0, 1, 2 / 3, 0, 1, 1, 1, 1, 1, 1, 2, 1),
+								Array(0, 2, 1 / 2, 0, 1, 1 / 2, 0, 1, 2, 1), Array(0, 2, 0, 0, 1, 0, 0, 1 / 2, 1, 1, 1 / 2, 1, 1, 0, 1, 1, 0, 1, 2, 1), Array(
+								0, 2, 1, 0, 1, 1, 2, 0, 0, 1), Array(0, 2, 1 / 2, 1, 1, 1, 2, 1 / 2, 1, 1, 1 / 2, 1, 1 / 2, 0, 1), Array(0, 2, 1, 2, 1, 1, 2,
+								0, 0, 1, 0, 0, 1, 0, 1), Array())[Global.tmp[0]], Current Array Index % 5 == 4 ? Current Array Element * Global.tmp[3] : (
+								Current Array Index % 5 == 0 || Current Array Index % 5 == 2 ? Current Array Element + Global.tmp[1] : Current Array Element + Global.tmp[2])));
+							Log To Inspector(Count Of(Event Player.oriprint[3]));
+						End;
+						disabled Event Player.oriprint[3] = Array(0, 1 / 2, -1 / 3, 1, 2, -1 / 3, 1, -2 / 3, 1, 2, -2 / 3, 1, -1, 1 / 2, 2, -1, 1 / 2, 0, -1, 2, 0,
+							-1, 1, 1 / 2, 2, 1, 1 / 2, 2 / 3, 1, 2, 2 / 3, 1, 1 / 3, 1, 2, 1 / 3, 1, 0, 1 / 2, 2);
+						Event Player.oriprint[4] = Facing Direction Of(Event Player);
+						Event Player.oriprint[5] = Event Player.stat[4];
+						Event Player.oriprint[11] = Position Of(Event Player);
+						Event Player.oriprint[6] = 2;
+						Event Player.oriprint[7] = 2;
+						Start Rule(orisaprint, Restart Rule);
+					End;
+				Else If(Event Player.inputuse == Custom String("hello world!"));
+					Event Player.nameid[0] = Event Player.input;
+				End;
+				Event Player.cmd = 1000;
+				Loop;
+			"esc"
+			Else If(Event Player.cmd == 258);
+				Destroy HUD Text(Event Player.inputid);
+				Event Player.cmd = 1000;
+				Loop;
+			End;
+		Else If(7000 <= Event Player.cmd && Event Player.cmd < 8000);
+			Global.arg[0] = Event Player.cmd - 7000;
+			Call Subroutine(cmdemote);
+		Else If(8000 <= Event Player.cmd && Event Player.cmd < 9000);
+			Global.arg[0] = Event Player.cmd - 8000;
+			Call Subroutine(cmddraw);
+		Else If(9000 <= Event Player.cmd && Event Player.cmd < 10000);
+			Global.arg[0] = Event Player.cmd - 9000;
+		Else If(10000 <= Event Player.cmd && Event Player.cmd < 11000);
+			Call Subroutine(cmdrts);
+		Else If(11000 <= Event Player.cmd && Event Player.cmd < 12000);
+			Create Dummy Bot(Hero Of(Event Player), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(
+				Event Player)), -1, Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(
+				Event Player) * 100, Null, Null, False), -1 * Facing Direction Of(Event Player));
+			Last Created Entity.bottype = Event Player.cmd - 11000;
+		Else If(12000 <= Event Player.cmd && Event Player.cmd < 13000);
+			Event Player.cmd -= 12000;
+			Call Subroutine(cmdmvmod);
+		Else If(13000 <= Event Player.cmd && Event Player.cmd < 14000);
+			Event Player.cmd -= 13000;
+			Call Subroutine(cmdcustom);
+		else if(14000 <= event player.cmd && event player.cmd < 15000);
+			global.arg[0] = event player.cmd - 14000;
+			call subroutine(cmdpalette);
+		End;
+		Event Player.cmd = 0;
+		Loop;
+	}
+}
+
+rule("misc - server load monitoring") {
+	event {Ongoing - Global;}
+	actions {
+		Global.menuable = 0;
+		Create HUD Text(Host Player, Null, Null, custom String("server load: {0}\r\nserver load average: {1}\r\nserver load peak: {2}", Server Load, Server Load Average, Server Load Peak), Left, 16, Color(White),
+			Color(White), Color(White), Visible To and String, Default Visibility);
+		Wait Until(Is Game In Progress, 99999);
+		While(True);
+			while(true);
+				Wait Until(Server Load >= 250, 99999);
+				wait until(server load < 250, 2);
+				if(server load >= 250);
+					break;
+				end;
+			end;
+			Global.menuable += 1;
+			Destroy All Dummy Bots;
+			Big Message(All Players(All Teams), Custom String("工坊过载，功能暂时关闭!"));
+			All Players(All Teams).stat[6] = 1;
+			Stop Scaling Player(All Players(All Teams));
+			Wait(8, Ignore Condition);
+			Global.menuable -= 1;
+		End;
+	}
+}
+
+rule("draw - init global") {
+    event { ongoing - global; }
+	actions {
+	    global.drawentities = array();
+	}
+}
+
+rule("draw - init player") {
+	event { ongoing - each player; all; all; }
+	actions {
+		event player.drawposs = array(0, 0, 0, 0);
+		event player.drawposcurrent = -1;
+	}
+}
+
+rule("rule - draw") {
+	event {Subroutine; draw;}
+	actions {
+		Event Player.subflags[2] = True;
+		Disallow Button(Event Player, Button(Primary Fire));
+		Disallow Button(Event Player, Button(Secondary Fire));
+		Start Rule(draw_, Do Nothing);
+		While(True);
+			While(Event Player.subflags[2] && Event Player.drawtype[2] == 1);
+				"draw position default"
+				Global.arg[0] = Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(Event Player)
+					* 3 * Event Player.stat[6], Null, Null, False);
+				"draw position"
+				Global.arg[1] = Global.arg[0];
+				"max distance"
+				Global.arg[2] = 0.100;
+				For Global Variable(index, 0, Count Of(Global.drawentities), 1);
+					If(Global.drawentities[Global.index][0] == Event Player);
+						Global.arg[3] = Distance Between(Eye Position(Event Player), Global.drawentities[Global.index][2]);
+						Global.arg[3] *= Sine From Degrees(Angle Between Vectors(Vector Towards(Eye Position(Event Player),
+							Global.drawentities[Global.index][2]), Facing Direction Of(Event Player)));
+						If(Global.arg[3] < Global.arg[2]);
+							Global.arg[1] = Global.drawentities[Global.index][2];
+							Global.arg[2] = Global.arg[3];
+						End;
+						Global.arg[3] = Distance Between(Eye Position(Event Player), Global.drawentities[Global.index][3]);
+						Global.arg[3] *= Sine From Degrees(Angle Between Vectors(Vector Towards(Eye Position(Event Player),
+							Global.drawentities[Global.index][3]), Facing Direction Of(Event Player)));
+						If(Global.arg[3] < Global.arg[2]);
+							Global.arg[1] = Global.drawentities[Global.index][3];
+							Global.arg[2] = Global.arg[3];
+						End;
+					End;
+				End;
+				Event Player.drawpos = Global.arg[1];
+				Wait(0.016, Ignore Condition);
+			End;
+			Wait Until(Event Player.drawtype[2] == 1 || !Event Player.subflags[2], 99999);
+			If(!Event Player.subflags[2]);
+				Break;
+			End;
+		End;
+	}
+}
+
+rule("rule - draw_") {
+	event {Subroutine; draw_;}
+	actions {
+		Wait Until(!Event Player.menuopen && (!Is Button Held(Event Player, Button(Primary Fire)) || !Event Player.subflags[2]), 99999);
+		If(!Event Player.subflags[2]);
+			If(Event Player.menuopen == False);
+				Allow Button(Event Player, Button(Primary Fire));
+				Allow Button(Event Player, Button(Secondary Fire));
+			End;
+			Abort;
+		End;
+		While(True);
+			"show draw position"
+			Create Effect(Event Player.drawtype[2] == 1 ? Event Player : Null, Sphere, Color(Red), Event Player.drawpos, 0.100,
+				Visible To Position and Radius);
+			Event Player.drawid = Last Created Entity;
+			Wait Until(!Event Player.menuopen && (Is Button Held(Event Player, Button(Primary Fire)) || !Event Player.subflags[2]), 99999);
+			If(!Event Player.subflags[2]);
+				Destroy Effect(Event Player.drawid);
+				Break;
+			End;
+			Event Player.drawstart = Event Player.drawtype[2] == 0 ? Ray Cast Hit Position(Eye Position(Event Player), Eye Position(
+				Event Player) + Facing Direction Of(Event Player) * 3 * Event Player.stat[6], Null, Null, False) : Event Player.drawpos;
+			Destroy Effect(Event Player.drawid);
+			If(Event Player.drawtype[0] == 0);
+				Create Beam Effect(Filtered Array(All Players(All Teams), Current Array Element.drawvisible), Grapple Beam, Evaluate Once(
+					Event Player.drawstart), Event Player.drawtype[2] == 0 ? Update Every Frame(Ray Cast Hit Position(Eye Position(Event Player),
+					Eye Position(Event Player) + Facing Direction Of(Event Player) * 3 * Event Player.stat[6], Null, Null, False))
+					: Event Player.drawpos, Global.palette[Event Player.drawtype[1]], Visible To Position and Radius);
+			Else If(Event Player.drawtype[0] == 1);
+				Create Effect(Filtered Array(All Players(All Teams), Current Array Element.drawvisible), Sphere,
+					event player.palette[0], Evaluate Once(Event Player.drawstart), Distance Between(Evaluate Once(
+					Event Player.drawstart), Event Player.drawtype[2] == 0 ? Update Every Frame(Ray Cast Hit Position(Eye Position(Event Player),
+					Eye Position(Event Player) + Facing Direction Of(Event Player) * 3 * Event Player.stat[6], Null, Null, False))
+					: Event Player.drawpos), Visible To Position and Radius);
+			End;
+			Event Player.drawid = Last Created Entity;
+			Wait Until(!Event Player.menuopen && (!Is Button Held(Event Player, Button(Primary Fire)) || !Event Player.subflags[2]), 99999);
+			If(!Event Player.subflags[2]);
+				Destroy Effect(Event Player.drawid);
+				Break;
+			End;
+			"add new effect"
+			If(Count Of(Global.drawentities) >= 233);
+				Destroy Effect(First Of(Global.drawentities)[1]);
+				Global.drawentities = Array Slice(Global.drawentities, 1, Count Of(Global.drawentities));
+			End;
+			Global.tmp[0] = Event Player.drawtype[2] == 0 ? Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+				+ Facing Direction Of(Event Player) * 3 * Event Player.stat[6], Null, Null, False) : Event Player.drawpos;
+			If(Event Player.drawtype[0] == 0);
+				Create Beam Effect(Filtered Array(All Players(All Teams), Current Array Element.drawvisible), Grapple Beam, Event Player.drawstart,
+					Global.tmp[0], Global.palette[Event Player.drawtype[1]], Visible To);
+				Modify Global Variable(drawentities, Append To Array, Array(Array(Event Player, Last Created Entity, Event Player.drawstart,
+					Global.tmp[0])));
+			Else If(Event Player.drawtype[0] == 1);
+				Create Effect(Filtered Array(All Players(All Teams), Current Array Element.drawvisible), Sphere,
+					event player.palette[0], Event Player.drawstart, Distance Between(Event Player.drawstart, Global.tmp[0]),
+					Visible To);
+				Modify Global Variable(drawentities, Append To Array, Array(Array(Event Player, Last Created Entity, Event Player.drawstart,
+					Event Player.drawstart)));
+			End;
+			Destroy Effect(Event Player.drawid);
+		End;
+		If(Event Player.menuopen == False);
+			Allow Button(Event Player, Button(Primary Fire));
+			Allow Button(Event Player, Button(Secondary Fire));
+		End;
+	}
+}
+
+rule("rule - drawerase") {
+	event {Subroutine; drawerase;}
+	actions {
+		Wait Until(!Event Player.menuopen && (!Is Button Held(Event Player, Button(Secondary Fire)) || !Event Player.subflags[2]), 99999);
+		If(!Event Player.subflags[2]);
+			Break;
+		End;
+		While(True);
+			Wait Until(!Event Player.menuopen && (Is Button Held(Event Player, Button(Secondary Fire)) || !Event Player.subflags[2]), 99999);
+			If(!Event Player.subflags[2]);
+				Break;
+			End;
+			Global.tmp[0] = Last Of(Filtered Array(Global.drawentities, Current Array Element[0] == Event Player));
+			Destroy Effect(Global.tmp[0][1]);
+			Global.drawentities = Filtered Array(Global.drawentities, Current Array Element[1] != Global.tmp[0][1]);
+			Wait Until(!Event Player.menuopen && (!Is Button Held(Event Player, Button(Secondary Fire)) || !Event Player.subflags[2]), 0.320);
+			If(!Event Player.subflags[2]);
+				Break;
+			End;
+			If(Is Button Held(Event Player, Button(Secondary Fire)));
+				While(True);
+					Wait Until(!Event Player.menuopen && (!Is Button Held(Event Player, Button(Secondary Fire)) || !Event Player.subflags[2]), 0.064);
+					If(!Event Player.subflags[2]);
+						Break;
+					End;
+					If(Is Button Held(Event Player, Button(Secondary Fire)));
+						Global.tmp[0] = Last Of(Filtered Array(Global.drawentities, Current Array Element[0] == Event Player));
+						Destroy Effect(Global.tmp[0][1]);
+						Global.drawentities = Filtered Array(Global.drawentities, Current Array Element[1] != Global.tmp[0][1]);
+					Else;
+						Break;
+					End;
+				End;
+			End;
+		End;
+	}
+}
+
+rule("sub - cmdmisc") {
+	event { subroutine; cmdmisc; }
+	actions {
+		if(0 < global.arg[0] && global.arg[0] < 64);
+			If(global.arg[0] <= 10);
+				Global.arg[0] = global.arg[0] - 1;
+				Call Subroutine(setclr);
+			Else If(global.arg[0] <= 14);
+				Event Player.stat[2] = global.arg[0] - 10;
+			Else If(global.arg[0] == 30);
+			Else If(global.arg[0] == 15);
+				Play Effect(All Players(All Teams), Good Explosion, Color(Sky Blue), (Position Of(Event Player) + Eye Position(Event Player)) / 2,
+					1);
+				Global.tmp[0] = Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + 10 * Facing Direction Of(
+					Event Player), Null, Null, False) - Eye Position(Event Player) + Position Of(Event Player);
+				If(Distance Between(Global.tmp[0], Position Of(Event Player)) < 7);
+					Teleport(Event Player, Global.tmp[0] + 3 * Direction Towards(Position Of(Event Player), Global.tmp[0]));
+				Else;
+					Teleport(Event Player, Position Of(Event Player) + 10 * Facing Direction Of(Event Player));
+				End;
+				Apply Impulse(Event Player, -1 * Velocity Of(Event Player), Speed Of(Event Player), To World, Incorporate Contrary Motion);
+				Play Effect(All Players(All Teams), Good Explosion, Color(Sky Blue), (Position Of(Event Player) + Eye Position(Event Player)) / 2,
+					1);
+				Play Effect(All Players(All Teams), Debuff Impact Sound, Color(White), Position Of(Event Player), 100);
+			Else If(global.arg[0] == 16);
+			Else If(global.arg[0] == 17);
+				If(Has Status(Event Player, Phased Out));
+					Clear Status(Event Player, Phased Out);
+					Small Message(Event Player, Custom String("hello world!"));
+				Else;
+					Event Player.stat[0] = False;
+					Event Player.stat[1] = False;
+					Set Status(Event Player, Null, Phased Out, 9999);
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			Else If(global.arg[0] == 18);
+				If(Event Player.stat[3]);
+					Disable Hero HUD(Event Player);
+					Event Player.stat[3] = False;
+				Else;
+					Enable Hero HUD(Event Player);
+					Event Player.stat[3] = True;
+				End;
+			Else If(global.arg[0] == 31);
+				Event Player.stat[4] = 5.500 * 100 / 50;
+				Set Projectile Speed(Event Player, 5.500 * 100 / 50);
+				Set Projectile Gravity(Event Player, 100);
+			Else If(global.arg[0] == 20);
+			Else If(global.arg[0] == 21);
+				Global.arg[0] = 10;
+				Call Subroutine(setclr);
+			"voice cancel"
+			Else If(global.arg[0] == 34);
+				Set Status(Event Player, Null, Hacked, 0.016);
+			"motion cancel"
+			Else If(global.arg[0] == 35);
+				Cancel Primary Action(Event Player);
+			"camera"
+			Else If(global.arg[0] == 36);
+				"camera"
+				If(Global.camera == Empty Array);
+					All Players(All Teams).stat[2] = 6;
+					Global.camera = Array(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(Event Player));
+					Global.camlock = True;
+					Start Camera(All Players(All Teams), Evaluate Once(Global.camera[0]), Evaluate Once(Global.camera[1]), 0);
+				Else;
+					All Players(All Teams).stat[2] = 1;
+					Global.camera = Empty Array;
+					Global.camlock = False;
+				End;
+			Else If(global.arg[0] == 22);
+				If(Global.bCall);
+					Respawn(Host Player);
+					Small Message(Event Player, Custom String("hello world!"));
+				Else;
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			Else If(global.arg[0] == 23);
+				Event Player.infra = !Event Player.infra;
+				Call Subroutine(outlupdate);
+			"scaling"
+			Else If(global.arg[0] == 25);
+				If(Event Player.contiarg[0]);
+					Call Subroutine(contiswitch);
+					Event Player.stat[6] = Global.arg[0];
+					Start Scaling Player(Event Player, Event Player.stat[6], False);
+					Set Move Speed(Event Player, 100 * Event Player.stat[6]);
+					Set Jump Vertical Speed(Event Player, 100 * Square Root(Event Player.stat[6]));
+				Else;
+					Event Player.contiarg[2] = 0.100;
+					Event Player.contiarg[3] = 20;
+					Call Subroutine(contiswitch);
+				End;
+			Else If(global.arg[0] == 26);
+				Event Player.stat[6] = 1;
+				Stop Scaling Player(Event Player);
+				Set Move Speed(Event Player, 100 * Event Player.stat[6]);
+				Set Jump Vertical Speed(Event Player, 100 * Square Root(Event Player.stat[6]));
+			"voice"
+			Else If(global.arg[0] == 28);
+				If(Event Player.contiarg[0]);
+					Call Subroutine(contiswitch);
+					Event Player.stat[7] = Global.arg[0];
+					Start Modifying Hero Voice Lines(Event Player, Event Player.stat[7], False);
+				Else;
+					Event Player.contiarg[2] = 0.500;
+					Event Player.contiarg[3] = 1.500;
+					Call Subroutine(contiswitch);
+				End;
+			Else If(global.arg[0] == 29);
+				Event Player.stat[7] = 1;
+				Stop Modifying Hero Voice Lines(Event Player);
+				Small Message(Event Player, String("", Event Player.stat[7]));
+			Else If(global.arg[0] == 32);
+				If(Event Player.spintype == -2);
+					Event Player.spintype = 1;
+				Else;
+					Event Player.spintype = 2;
+				End;
+			Else If(global.arg[0] == 41);
+				If(Event Player.spintype == -3);
+					Event Player.spintype = 1;
+				Else;
+					Event Player.spintype = 3;
+				End;
+			Else If(global.arg[0] == 42);
+				Event Player.spinrate *= (Square Root(5) + 1) / 2;
+				If(Event Player.spinrate > 360 * 8);
+					Event Player.spinrate = 360 * 8;
+				End;
+			Else If(global.arg[0] == 43);
+				Event Player.spinrate *= (Square Root(5) - 1) / 2;
+				If(Event Player.spinrate < 360 / 8);
+					Event Player.spinrate = 360 / 8;
+				End;
+			Else If(global.arg[0] == 33);
+				If(Event Player.subflags[0]);
+					Event Player.subflags[0] = False;
+				Else;
+					Start Rule(massfire, Restart Rule);
+				End;
+			Else If(global.arg[0] == 19);
+				If(Event Player.stat[4] != 100);
+					Event Player.stat[4] = 100;
+					Set Projectile Speed(Event Player, 100);
+					Set Projectile Gravity(Event Player, 100);
+				Else;
+					Event Player.stat[4] = 0;
+					Set Projectile Speed(Event Player, 0);
+					Set Projectile Gravity(Event Player, 0);
+				End;
+			Else If(global.arg[0] == 48);
+				Event Player.stat[4] *= 2;
+				If(Event Player.stat[4] > 800);
+					Event Player.stat[4] = 800;
+				End;
+				Set Projectile Speed(Event Player, Event Player.stat[4]);
+			Else If(global.arg[0] == 49);
+				Event Player.stat[4] /= 2;
+				If(Event Player.stat[4] < 1);
+					Event Player.stat[4] = 1;
+				End;
+				Set Projectile Speed(Event Player, Event Player.stat[4]);
+			"cloning"
+			Else If(global.arg[0] == 56);
+			"name"
+			Else If(global.arg[0] == 57);
+				Event Player.inputuse = Custom String("");
+				global.arg[0] = 6256;
+				Loop;
+			Else If(global.arg[0] == 58);
+				Start Rule(changehero, Restart Rule);
+			Else If(global.arg[0] == 59);
+				Global.start = True;
+			End;
+		Else If(64 <= global.arg[0] && global.arg[0] < 1000);
+			If(global.arg[0] == 64);
+				Global.OPAFK = !Global.OPAFK;
+				If(Global.OPAFK);
+					Small Message(Host Player, Custom String("hello world!"));
+				Else;
+					Small Message(Host Player, Custom String("hello world!"));
+				End;
+			Else If(global.arg[0] == 65);
+			Else If(global.arg[0] == 66);
+				If(Global.bCall);
+					Global.bCall = 0;
+					Global.bCall = False;
+				Else;
+					Global.bCall = True;
+				End;
+			"bot"
+			Else If(global.arg[0] == 68);
+				Destroy All Dummy Bots;
+			Else If(global.arg[0] == 98);
+				Create Dummy Bot(Hero Of(Event Player), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(
+					Event Player)), -1, Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(
+					Event Player) * 10, Null, Null, False), Vector(0, 0, 0));
+				Last Created Entity.bottype = Custom String("hello world!");
+			Else If(global.arg[0] == 67);
+				Create Dummy Bot(Hero Of(Event Player), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(
+					Event Player)), -1, Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(
+					Event Player) * 10, Null, Null, False), Vector(0, 0, 0));
+				Last Created Entity.actflag = True;
+				Last Created Entity.actlist = Array(Array(1, 0.250, Vector(0, 0, 1), Vector(0, 0, -1), Vector(0, 0, -1), Vector(0, 0, 1), 0),
+					Array(2, 0.250, 360, Vector(1, 3, 0), Vector(1, -3, 0), 0), Array(0, 0));
+				Last Created Entity.bottype = 5;
+			Else If(global.arg[0] == 69);
+				Create Dummy Bot(Hero(Baptiste), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Down);
+				Last Created Entity.bottype = 1;
+			Else If(global.arg[0] == 83);
+				Create Dummy Bot(Hero(D.Va), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = 2;
+			Else If(global.arg[0] == 85);
+				Create Dummy Bot(Hero(Orisa), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = 3;
+			Else If(global.arg[0] == 87);
+				If(Event Player == Host Player || Count Of(Filtered Array(All Players(All Teams),
+					Current Array Element.bottype == 4 && Event Player.nameid[1] == Current Array Element.botvars[0])) < 2);
+					Create Dummy Bot(Hero Of(Event Player), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(
+						Event Player)), -1, Position Of(Event Player), Facing Direction Of(Event Player));
+					If(!Is Dummy Bot(Last Created Entity));
+						Small Message(Event Player, Custom String("hello world!"));
+					Else;
+						Last Created Entity.bottype = 4;
+						Last Created Entity.botvars[0] = Event Player.nameid[1];
+					End;
+				Else;
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			Else If(global.arg[0] == 88);
+				Create Dummy Bot(Hero(Wrecking Ball), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)),
+					-1, Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(Event Player) * 10,
+					Null, Null, False), Vector(0, 0, 0));
+				Last Created Entity.bottype = 9;
+			Else If(global.arg[0] == 89);
+				Event Player.botconfig[0] = !Event Player.botconfig[0];
+				If(Event Player.botconfig[0]);
+					Small Message(Event Player, Custom String("hello world!"));
+				Else;
+					Small Message(Event Player, Custom String("hello world!"));
+				End;
+			Else If(global.arg[0] == 84);
+				Destroy Dummy Bot(Team Of(Player Closest To Reticle(Event Player, All Teams)), Slot Of(Player Closest To Reticle(Event Player,
+					All Teams)));
+			Else If(global.arg[0] == 91);
+				"the flash"
+				Create Dummy Bot(Hero(Cassidy), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = Custom String("hello world!");
+			Else If(global.arg[0] == 95);
+				"venom"
+				Create Dummy Bot(Hero(Widowmaker), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = Custom String("hello world!");
+			Else If(global.arg[0] == 97);
+				"zarya"
+				Create Dummy Bot(Hero(Zarya), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = Custom String("hello world!");
+				Set Projectile Speed(Last Created Entity, 50);
+			Else If(global.arg[0] == 96);
+				"bash"
+				Create Dummy Bot(Hero(Brigitte), Event Player.botconfig[0] ? Team Of(Event Player) : Opposite Team Of(Team Of(Event Player)), -1,
+					Position Of(Event Player), Facing Direction Of(Event Player));
+				Last Created Entity.bottype = Custom String("hello world!");
+			Else If(global.arg[0] == 92);
+				"record player"
+				Create Dummy Bot(Hero Of(Event Player), Opposite Team Of(Team Of(Event Player)), -1, Position Of(Event Player),
+					Facing Direction Of(Event Player));
+				Last Created Entity.mmpitchbase = 0.866 / 0.595;
+				Last Created Entity.bottype = 12;
+				Create Dummy Bot(Hero Of(Event Player), Opposite Team Of(Team Of(Event Player)), -1, Position Of(Event Player),
+					Facing Direction Of(Event Player));
+				Last Created Entity.mmpitchbase = 0.866 / 0.749;
+				Last Created Entity.bottype = 12;
+			Else If(global.arg[0] == 90);
+				Global.tmp[0] = Player Closest To Reticle(Event Player, All Teams);
+				If(Has Status(Event Player, Hacked));
+					Set Status(Global.tmp[0], Null, Hacked, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Hacked);
+				End;
+				If(Has Status(Event Player, Burning));
+					Set Status(Global.tmp[0], Null, Burning, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Burning);
+				End;
+				If(Has Status(Event Player, Knocked Down));
+					Set Status(Global.tmp[0], Null, Knocked Down, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Knocked Down);
+				End;
+				If(Has Status(Event Player, Asleep));
+					Set Status(Global.tmp[0], Null, Asleep, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Asleep);
+				End;
+				If(Has Status(Event Player, Frozen));
+					Set Status(Global.tmp[0], Null, Frozen, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Frozen);
+				End;
+				If(Has Status(Event Player, Invincible));
+					Set Status(Global.tmp[0], Null, Invincible, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Invincible);
+				End;
+				If(Has Status(Event Player, Stunned));
+					Set Status(Global.tmp[0], Null, Stunned, 9999);
+				Else;
+					Clear Status(Global.tmp[0], Stunned);
+				End;
+				Global.tmp[0].stat[5] = Event Player.stat[5];
+				If(Global.tmp[0].stat[5]);
+					Set Invisible(Global.tmp[0], All);
+				Else;
+					Set Invisible(Global.tmp[0], None);
+				End;
+			Else If(global.arg[0] == 70);
+				If(Global.slowmotion == 100);
+					Global.slowmotion = 10;
+					Set Slow Motion(10);
+				Else;
+					Global.slowmotion = 100;
+					Set Slow Motion(100);
+				End;
+				Small Message(Event Player, String("", Global.slowmotion));
+			Else If(global.arg[0] == 71);
+				Global.slowmotion *= (Square Root(5) - 1) / 2;
+				If(Global.slowmotion < 10);
+					Global.slowmotion = 10;
+				End;
+				Set Slow Motion(Global.slowmotion);
+				Small Message(Event Player, String("", Global.slowmotion[0]));
+			Else If(global.arg[0] == 72);
+				Global.slowmotion /= (Square Root(5) - 1) / 2;
+				If(Global.slowmotion > 100);
+					Global.slowmotion = 100;
+				End;
+				Set Slow Motion(Global.slowmotion);
+				Small Message(Event Player, String("", Global.slowmotion));
+			Else If(global.arg[0] == 73);
+				Communicate(All Players(All Teams), Hello);
+			Else If(global.arg[0] == 74);
+				Communicate(All Players(All Teams), Need Healing);
+			Else If(global.arg[0] == 75);
+				Communicate(All Players(All Teams), Voice Line Up);
+			Else If(global.arg[0] == 76);
+				Communicate(All Players(All Teams), Thanks);
+			Else If(global.arg[0] == 78);
+				Communicate(All Players(All Teams), Goodbye);
+			Else If(global.arg[0] == 77);
+				Global.tmp = Filtered Array(All Players(All Teams), Array Contains(All Heroes, Hero Of(Current Array Element)));
+				If(Global.tmp.stat[0]);
+					Global.tmp.stat[0] = False;
+					Clear Status(Global.tmp, Knocked Down);
+				Else;
+					Global.tmp.stat[0] = True;
+					Clear Status(Global.tmp, Phased Out);
+					Set Status(Global.tmp, Null, Knocked Down, 9999);
+				End;
+			Else If(global.arg[0] == 79);
+				Global.tmp = Filtered Array(All Players(All Teams), Array Contains(All Heroes, Hero Of(Current Array Element)));
+				If(Has Status(Global.tmp, Hacked));
+					Clear Status(Global.tmp, Hacked);
+				Else;
+					Set Status(Global.tmp, Null, Hacked, 0.016);
+				End;
+			Else If(global.arg[0] == 99);
+			Else If(global.arg[0] == 80);
+				If(Global.neffect == 0);
+					Create Beam Effect(All Players(All Teams), Good Beam, Position Of(Event Player), Position Of(Event Player) + Facing Direction Of(
+						Event Player), Color(White), Visible To Position and Radius);
+				Else If(Global.neffect == 1);
+					Create Beam Effect(All Players(All Teams), Bad Beam, Position Of(Event Player), Position Of(Event Player) + Facing Direction Of(
+						Event Player), Color(White), Visible To Position and Radius);
+				Else If(Global.neffect == 2);
+					Create Beam Effect(All Players(All Teams), Grapple Beam, Position Of(Event Player), Position Of(Event Player)
+						+ Facing Direction Of(Event Player), Color(White), Visible To Position and Radius);
+				Else If(Global.neffect == 3);
+					Create Effect(All Players(All Teams), Sphere, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 4);
+					Create Effect(All Players(All Teams), Light Shaft, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 5);
+					Create Effect(All Players(All Teams), Orb, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 6);
+					Create Effect(All Players(All Teams), Ring, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 7);
+					Create Effect(All Players(All Teams), Cloud, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 8);
+					Create Effect(All Players(All Teams), Sparkles, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 9);
+					Create Effect(All Players(All Teams), Good Aura, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				Else If(Global.neffect == 10);
+					Create Effect(All Players(All Teams), Good Aura, Color(White), Eye Position(Event Player), 1, Visible To Position and Radius);
+				End;
+			Else If(global.arg[0] == 81);
+				Global.neffect += 1;
+				Global.neffect %= 11;
+			Else If(global.arg[0] == 82);
+				Destroy All Effects;
+			"respawn point"
+			Else If(global.arg[0] == 200);
+				Global.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+				Filtered Array(All Players(All Teams), !Is Dummy Bot(Current Array Element)).resstat = Global.resstat;
+				Play Effect(All Players(All Teams), Ring Explosion Sound, Color(White), Event Player, 100);
+			Else If(global.arg[0] == 201);
+				Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+				Play Effect(Event Player, Ring Explosion Sound, Color(White), Event Player, 100);
+			"end game"
+			Else If(global.arg[0] == 93);
+				Global.arg = Array(False, 1);
+				Start Rule(endgame, Restart Rule);
+			"restart game"
+			Else If(global.arg[0] == 101);
+				Global.arg = Array(True, 1);
+				Start Rule(endgame, Restart Rule);
+			"disable voice chat"
+			Else If(global.arg[0] == 94);
+				Event Player.chat = !Event Player.chat;
+				If(Player Closest To Reticle(Event Player, All Teams).chat);
+					Disable Voice Chat(Player Closest To Reticle(Event Player, All Teams), True, True, True);
+				Else;
+					Enable Voice Chat(Player Closest To Reticle(Event Player, All Teams));
+				End;
+			else if(global.arg[0] == 700);
+				call subroutine(changechnl);
+			else if(800 <= global.arg[0] && global.arg[0] < 900);
+				event player.menu = global.menu[global.arg[0] - 800];
+				event player.menusel = 0;
+				event player.menuitemsel = 2;
+				start rule(menuupdate, do nothing);
+			End;
+		End;
+	}
+}
+
+rule("sub - cmddraw") {
+	event {Subroutine; cmddraw;}
+	actions {
+		If(Global.arg[0] == 0);
+			If(Event Player.subflags[2]);
+				Event Player.subflags[2] = False;
+				Small Message(Event Player, Custom String("关闭"));
+			Else;
+				Small Message(Event Player, Custom String("左键绘画右键擦除"));
+				Start Rule(draw, Do Nothing);
+				Start Rule(drawerase, Do Nothing);
+			End;
+		Else If(Global.arg[0] == 1);
+			Event Player.drawtype[0] += 1;
+			Event Player.drawtype[0] %= 2;
+			If(Event Player.drawtype[0] == 0);
+				Small Message(Event Player, Custom String("line"));
+			Else If(Event Player.drawtype[0] == 1);
+				Small Message(Event Player, Custom String("ball"));
+			End;
+		Else If(Global.arg[0] == 2);
+			Event Player.drawtype[1] += 1;
+			Event Player.drawtype[1] %= Count Of(Global.palette);
+			Small Message(Event Player, Global.palette[Event Player.drawtype[1]]);
+		Else If(Global.arg[0] == 3);
+			Event Player.drawvisible = !Event Player.drawvisible;
+		else if(global.arg[0] == 4);
+			"fix position"
+			if(event player.drawposcurrent < 0);
+				global.arg[0] = -1 * event player.drawposcurrent;
+				event player.drawposs[global.arg[0] - 1] =
+					position of(event player);
+				DISABLED small message(event player, custom string("created new position at slot {0}",
+				   global.arg[0]));
+				start forcing player position(event player, position of(event player), false);
+				event player.drawposcurrent *= -1;
+			end;
+		Else If(Global.arg[0] == 5);
+			"switch position"
+			global.arg[0] = event player.drawposcurrent > 0 ? 1 : -1;
+			event player.drawposcurrent *= global.arg[0];
+			event player.drawposcurrent %= 4;
+			event player.drawposcurrent += 1;
+			DISABLED small message(event player, custom string("changed to position slot {0}",
+				event player.drawposcurrent));
+			small message(event player, event player.drawposcurrent);
+			global.arg[1] = event player.drawposs[event player.drawposcurrent - 1];
+			if(global.arg[0] > 0);
+				if(global.arg[1] == 0);
+					stop forcing player position(event player);
+				else;
+					start forcing player position(event player,
+						global.arg[1],
+						false);
+				end;
+			end;
+			event player.drawposcurrent *= global.arg[0];
+		else if(global.arg[0] == 6);
+			"detach position"
+			if(event player.drawposcurrent > 0);
+				event player.drawposcurrent *= -1;
+				stop forcing player position(event player);
+			end;
+		else if(global.arg[0] == 6);
+			Event Player.drawtype[2] += 1;
+			Event Player.drawtype[2] %= 2;
+			If(Event Player.drawtype[2] == 0);
+				Small Message(Event Player, Custom String("hello world!"));
+			Else If(Event Player.drawtype[2] == 1);
+				Small Message(Event Player, Custom String("hello world!"));
+			End;
+		End;
+	}
+}
+
+rule("") {
+	event {Subroutine; outlupdate;}
+	actions {
+		Global.arg[0] = All Players(All Teams);
+		If(Event Player.infra);
+			For Global Variable(index, 0, Count Of(Global.arg[0]), 1);
+				If(Global.arg[0][Global.index].infra);
+					Start Forcing Player Outlines(Global.arg[0][Global.index], Event Player, True, Global.arg[0][Global.index].outlcolor[4], Always);
+					Start Forcing Player Outlines(Event Player, Global.arg[0][Global.index], True, Event Player.outlcolor[4], Always);
+				End;
+			End;
+		End;
+	}
+}
+
+rule("") {
+	event {Subroutine; contiswitch;}
+	actions {
+		If(Event Player.contiarg[0]);
+			Destroy Progress Bar HUD Text(Event Player.contiarg[1]);
+			Global.arg[0] = (Event Player.contiarg[3] - Event Player.contiarg[2]) * (Angle Difference(Horizontal Facing Angle Of(Event Player),
+				Event Player.contiarg[4]) < -90 ? 0 : (Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4])
+				> 90 ? 1 : (Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4]) + 90) / 180))
+				+ Event Player.contiarg[2];
+		Else;
+			"base angle"
+			Event Player.contiarg[4] = Horizontal Facing Angle Of(Event Player);
+			Create Progress Bar HUD Text(Event Player, Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4])
+				< -90 ? 0 : (Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4]) > 90 ? 100 : (
+				Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4]) + 90) / 1.800), String("", (
+				Event Player.contiarg[3] - Event Player.contiarg[2]) * (Angle Difference(Horizontal Facing Angle Of(Event Player),
+				Event Player.contiarg[4]) < -90 ? 0 : (Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4])
+				> 90 ? 1 : (Angle Difference(Horizontal Facing Angle Of(Event Player), Event Player.contiarg[4]) + 90) / 180))
+				+ Event Player.contiarg[2], Event Player.contiarg[2], Event Player.contiarg[3]), Top, 2, Color(White), Color(Yellow),
+				Visible To Values and Color, Default Visibility);
+			Event Player.contiarg[1] = Last Text ID;
+		End;
+		Event Player.contiarg[0] = !Event Player.contiarg[0];
+		Abort;
+		"XXXXXXon / off"
+		Event Player.contiarg[0] = True;
+		"id"
+		Event Player.contiarg[1] = -1;
+		"min"
+		Event Player.contiarg[2] = 0;
+		"max"
+		Event Player.contiarg[3] = 100;
+	}
+}
+
+rule("init global") {
+	event {Ongoing - Global;}
+	actions {
+		"settings"
+		Global.settings[0] = Workshop Setting Toggle(Custom String("1"), Custom String("1"), False, 0);
+		Global.settings[1] = Workshop Setting Combo(Custom String("2"), Custom String("2"), 0, Array(Custom String("3"), Custom String(
+			"4"), Custom String("5"), Custom String("6"), Custom String("7"), Custom String("8")), 0);
+		Global.camera = Empty Array;
+		Global.palette = Array(Color(White), Color(Yellow), Color(Green), Color(Purple), Color(Red), Color(Blue));
+		Disable Built-In Game Mode Announcer;
+		Disable Built-In Game Mode Completion;
+		Disable Built-In Game Mode Music;
+		Disable Built-In Game Mode Scoring;
+		Global.dialogs[0] = Custom String("hello world!");
+		"resstat"
+		Global.tmp[0] = Array(Map(Necropolis), Array(Vector(-21, 12.710, 0), Vector(1, 0, 0)), Map(Temple of Anubis), Array(Vector(-52,
+			1.510, 32), Vector(-0.840, 0, -0.540)), Map(Hanamura), Array(Random Value In Array(Array(Vector(-14, -1, 13), Vector(14, -1,
+			14))), 0), Map(Junkertown), Array(Vector(68.500, 10.090, -90), 0), Map(Route 66), Array(Vector(43.500, 2.350, 64.750), Vector(
+			-0.300, 0, 0.950)), Map(Paris), Array(Random Value In Array(Array(Vector(29.200, 11.580, -64.), Vector(31.100, 11.580,
+			-68.200), Vector(33.010, 11.580, -71.710))), Vector(-0.880, 0, -0.480)), Map(King's Row), Array(Vector(-12, 0.250, -32.670),
+			Vector(-1, 0, 0)), Map(Volskaya Industries), Array(Vector(-37.340, 2.020, 38.390), Vector(-1, 0, 0)), Map(Lijiang Tower),
+			Array(Random Value In Array(Array(Vector(1.500, 94, 189.250), Vector(-1.500, 94, 189.250), Vector(1, -1, -61), Vector(0, 278,
+			293))), 0), Map(Dorado), Array(Vector(51.950, 2.560, 11), Vector(-1, 0, 0)),
+			Map(Petra), Array(Vector(-43, -10, 14), Vector(-1, 0, 0)), Map(Château Guillard), Array(
+			Random Value In Array(Array(Vector(214.500, 8.630, 56), Vector(214.500, 8.630, 51))), Vector(-1, 0, 0)), Map(
+			Ecopoint: Antarctica), Array(Vector(15, 8, 55), Vector(-1, 0, 0)));
+		Global.resstat = Global.tmp[0][Index Of Array Value(Filtered Array(Global.tmp[0], Current Array Index % 2 == 0), Current Map)
+			* 2 + 1];
+		Global.tmp = Array();
+		"variables"
+		Global.OPAFK = False;
+		Global.bCall = False;
+		Global.slowmotion = 100;
+		Global.neffect = 0;
+		Global.drawentities = Array();
+		Global.botconfig[0] = True;
+		Global.cmdsndtracks = Array(0.595, 0.595, 0.667, 0.667, 0.749, 0.749, 0.595, 0.595, 0.595, 0.595, 0.667, 0.667, 0.749, 0.749,
+			0.595, 0.595, 0.749, 0.749, 0.794, 0.794, 0.891, 0.891, 0.891, 0.891, 0.749, 0.749, 0.794, 0.794, 0.891, 0.891, 0.891, 0.891,
+			0.891, 1, 0.891, 0.794, 0.749, 0.749, 0.595, 0.595, 0.891, 1, 0.891, 0.794, 0.749, 0.749, 0.595, 0.595, 0.667, 0.667,
+			0.891 / 2, 0.891 / 2, 0.595, 0.595, 0.595, 0.595, 0.667, 0.667, 0.891 / 2, 0.891 / 2, 0.595, 0.595, 0.595, 0.595);
+		"mm"
+		Global.mmunitt = 0.100;
+		"menu"
+		DISABLED Create HUD Text(All Players(All Teams), Null, Null, Round To Integer(Total Time Elapsed, Up) % 3 == 0 ? Custom String(
+			"welcome to the club!") : (Round To Integer(Total Time Elapsed, Up) % 3 == 1 ? Custom String("enjoy music!") : Custom String(
+			"friendly!")), Left, 0, Color(White), Color(White), Round To Integer(Total Time Elapsed, Up) % 7 == 0 ? Custom Color(255, 0,
+			0, 255) : (Round To Integer(Total Time Elapsed, Up) % 7 == 1 ? Custom Color(255, 127, 0, 255) : (Round To Integer(
+			Total Time Elapsed, Up) % 7 == 2 ? Custom Color(255, 255, 0, 255) : (Round To Integer(Total Time Elapsed, Up)
+			% 7 == 3 ? Custom Color(0, 255, 0, 255) : (Round To Integer(Total Time Elapsed, Up) % 7 == 4 ? Custom Color(0, 0, 255, 255) : (
+			Round To Integer(Total Time Elapsed, Up) % 7 == 5 ? Custom Color(75, 0, 130, 255) : Custom Color(148, 0, 211, 255)))))),
+			Visible To String and Color, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, Team 1, Top, -1, Color(White), Color(White), Color(White),
+			Visible To and String, Default Visibility);
+		DISABLED Create HUD Text(All Players(All Teams), Null, Null, custom String("open/close menu: {0}\r\n{1}\r\n{2}", Input Binding String(Button(Interact)), custom String("next menu item: {0}/{1}",
+			Input Binding String(Button(Primary Fire)), Input Binding String(Button(Secondary Fire))), custom String("select the item: {0}\r\nset a shortcut: {1}", Input Binding String(
+			Button(Melee)), Input Binding String(Button(Reload)))), Right, 0, Color(White), Color(White), Color(White),
+			Visible To and String, Default Visibility);
+		disabled Create HUD Text(All Players(All Teams), String("", Team 1), Null, Null, Top, 0, Color(White), Color(White), Color(White),
+			Visible To and String, Default Visibility);
+		While(!Is Game In Progress);
+			Set Match Time(0);
+			Wait(0.016, Ignore Condition);
+		End;
+	}
+}
+
+rule("subroutine endgame") {
+	event {Subroutine;
+		endgame;
+	}
+	actions {
+		"arg[0]:if restart,arg[1]:remaning time"
+		Skip If(!Global.endarg[2], 1);
+		Destroy Progress Bar HUD Text(Global.endarg[1]);
+		Global.endarg[2] = True;
+		Global.endarg[0] = Global.arg[0];
+		Create Progress Bar HUD Text(All Players(All Teams), (Evaluate Once(Total Time Elapsed + Global.arg[1] * 60) - Total Time Elapsed)
+			/ Evaluate Once(Global.arg[1] * 60) * 100, String("", Round To Integer((Evaluate Once(Total Time Elapsed + Global.arg[1] * 60)
+			- Total Time Elapsed) / 60, Up)), Top, 0, Color(White), Color(White), Visible To Values and Color, Default Visibility);
+		Global.endarg[1] = Last Text ID;
+		Wait(60 * (Global.arg[1] - 1), Ignore Condition);
+		If(Global.endarg[0]);
+			Big Message(All Players(All Teams), Custom String("hello world!"));
+		Else;
+			Big Message(All Players(All Teams), Custom String("hello world!"));
+		End;
+		Destroy Progress Bar HUD Text(Global.endarg[1]);
+		Create Progress Bar HUD Text(All Players(All Teams), (Evaluate Once(Total Time Elapsed + 60) - Total Time Elapsed) / 60 * 100,
+			String("", Round To Integer(Evaluate Once(Total Time Elapsed) + 60 - Total Time Elapsed, Up)), Top, 0, Color(White), Color(
+			White), Visible To Values and Color, Default Visibility);
+		Global.endarg[1] = Last Text ID;
+		Wait(60, Ignore Condition);
+		Skip If(Global.endarg[0], 1);
+		Remove Player(All Players(All Teams));
+		Restart Match;
+	}
+}
+
+rule("spawn - spawn") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		Wait Until(Array Contains(All Heroes, Hero Of(Event Player)), 99999);
+		If(Event Player.resstat[0] != 0);
+			Teleport(Event Player, Event Player.resstat[0]);
+		End;
+		If(Event Player.resstat[1] != 0);
+			Set Facing(Event Player, Event Player.resstat[1], To World);
+		End;
+		While(True);
+			Wait Until(Is Dead(Event Player), 99999);
+			Wait Until(Is Alive(Event Player), 99999);
+			If(Event Player.resstat[0] != 0);
+				Teleport(Event Player, Event Player.resstat[0]);
+			End;
+			If(Event Player.resstat[1] != 0);
+				Set Facing(Event Player, Event Player.resstat[1], To World);
+			End;
+		End;
+	}
+}
+
+rule("abilty - refresh ult") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		Wait Until(Array Contains(All Heroes, Hero Of(Event Player)) && !Is Dummy Bot(Event Player) && Ultimate Charge Percent(
+			Event Player) != 100, 99999);
+		If(Hero Of(Event Player) == Hero(D.Va) || Hero Being Duplicated(Event Player) == Hero(D.Va));
+			Wait(0.016, Ignore Condition);
+		End;
+		Set Ultimate Charge(Event Player, 100);
+		wait(8, ignore condition);
+		Loop;
+	}
+}
+
+rule("hosting - joining notification") {
+	event {Player Joined Match; All; All;}
+	conditions {
+		Global.OPAFK == True;
+	}
+	actions {
+		Respawn(Host Player);
+	}
+}
+
+rule("sub - misc changehero") {
+	event {Subroutine; changehero;}
+	actions {
+		Event Player.posfac = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+		Event Player.nameid[2] = Hero Of(Event Player);
+		While(True);
+			Set Player Allowed Heroes(Event Player, Remove From Array(All Heroes, Hero Of(Event Player)));
+			Set Player Allowed Heroes(Event Player, All Heroes);
+			Wait Until(Array Contains(All Heroes, Hero Of(Event Player)), 8);
+			If(Array Contains(All Heroes, Hero Of(Event Player)));
+				Break;
+			End;
+		End;
+		Teleport(Event Player, Event Player.posfac[0]);
+		Wait(0.016, Ignore Condition);
+		Set Facing(Event Player, Event Player.posfac[1], To World);
+	}
+}
+
+rule("init player") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		Set Status(Event Player, Null, Invincible, 99999);
+		Event Player.outlcolor = Array(255, 255, 255, 255);
+		"shortcut"
+		Event Player.scs = Array(15, 0, 0, 58, 0, 0, 0);
+		"nameplates, outlines"
+		Event Player.infra = True;
+		Call Subroutine(outlupdate);
+		"res position & facing"
+		Event Player.resstat = Global.resstat;
+		"**********non-bot**********"
+		If(Is Dummy Bot(Event Player));
+			Abort;
+		End;
+		"bot"
+		Event Player.botconfig = Array(True);
+		"draw"
+		Event Player.drawtype = Array(0, 0, 0);
+		Event Player.drawvisible = True;
+		Disable Voice Chat(Event Player, True, False, False);
+		Event Player.chat = True;
+		"mm"
+		Event Player.mmrhythm = Array();
+		Event Player.mmmelody = Array();
+		"menuauth"
+		If(Event Player == Host Player);
+			Event Player.menuauth = 7;
+		Else;
+			Event Player.menuauth = 0;
+		End;
+		"prompt"
+		Event Player.prompt = Custom String("hello world!");
+		Create HUD Text(Event Player, Null, Null, Event Player.prompt, Left, 1000, Color(White), Color(White), Color(White),
+			Visible To and String, Default Visibility);
+		Event Player.oriprint[0] = True;
+		Event Player.spintype = 1;
+		Event Player.spinrate = 360;
+		Event Player.spinangle = 0;
+		Event Player.subflags = Array(False, False);
+		Start Rule(infammo, Do Nothing);
+		"stat"
+		Event Player.stat = Array(False, False, 1, True, 100, False, 1, 1);
+		"camera"
+		If(Global.camera != Empty Array);
+			Start Camera(All Players(All Teams), Evaluate Once(Global.camera[0]), Evaluate Once(Global.camera[1]), 0);
+		End;
+		Disable Game Mode HUD(Event Player);
+		Disable Game Mode In-World UI(Event Player);
+		/*If(Event Player == Host Player);
+			Global.arg[0] = False;
+			Global.arg[1] = Workshop Setting Integer(Custom String("4"), Custom String("hello world!"), 30, 0, 120, 0);
+			Start Rule(endgame, Restart Rule);
+		End;*/
+	}
+}
+
+
+rule("bot - init bot") {
+	event {Ongoing - Each Player; All; All;}
+	conditions {
+		Is Dummy Bot(Event Player) == True;
+	}
+	actions {
+		If(Array Contains(Array(Game Mode(Deathmatch), Game Mode(Team Deathmatch)), Current Game Mode));
+			Wait(0.160, Ignore Condition);
+		End;
+		If(1 <= Event Player.bottype && Event Player.bottype < 100);
+			If(Event Player.bottype == 1);
+				Event Player.stat[5] = True;
+				Set Invisible(Event Player, All);
+				Disable Movement Collision With Players(Event Player);
+				Wait(0.016, Ignore Condition);
+				Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+				Set Facing(Event Player, Down, To World);
+				Wait(0.016, Ignore Condition);
+				While(True);
+					Press Button(Event Player, Button(Ability 2));
+					Wait(5, Ignore Condition);
+				End;
+			Else If(Event Player.bottype == 2);
+				Event Player.nameid[0] = Custom String("hello world!");
+				Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+				Start Scaling Player(Event Player, (Square Root(5) - 1) / 2, False);
+				Start Modifying Hero Voice Lines(Event Player, 1.500, False);
+				Start Rule(eyetrack, Do Nothing);
+				Start Rule(hello, Do Nothing);
+				Wait(0.160, Ignore Condition);
+				Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+				While(True);
+					Wait Until(Event Player.botvars[0] != Null && Is On Ground(Event Player), 99999);
+					Press Button(Event Player, Button(Jump));
+					Wait(0.016, Ignore Condition);
+				End;
+			Else If(Event Player.bottype == 3);
+				Event Player.stat[5] = True;
+				Set Invisible(Event Player, All);
+				Disable Movement Collision With Players(Event Player);
+				Wait(0.016, Ignore Condition);
+				Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+				Wait(0.016, Ignore Condition);
+				While(True);
+					Set Ultimate Charge(Event Player, 100);
+					Press Button(Event Player, Button(Ultimate));
+					Wait(16, Ignore Condition);
+				End;
+			"ghost"
+			Else If(Event Player.bottype == 4);
+				Event Player.nameid[0] = Hero Of(Event Player);
+				Wait Until(Array Contains(All Heroes, Hero Of(Event Player)), 99999);
+				Clear Status(Event Player, Invincible);
+				Wait Until(Position Of(Event Player) != 0, 99999);
+				Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			Else If(Event Player.bottype == 5);
+				Enable Built-In Game Mode Respawning(Event Player);
+				Wait Until(Is Dead(Event Player), 99999);
+				Wait Until(Is Alive(Event Player), 99999);
+				Teleport(Event Player, Position Of(Host Player));
+				Wait(3, Ignore Condition);
+				Destroy Dummy Bot(Team Of(Event Player), Slot Of(Event Player));
+			"table tennis"
+			Else If(Event Player.bottype == 9);
+				Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+				Start Scaling Player(Event Player, 0.100, False);
+				Wait(0.500, Ignore Condition);
+				Press Button(Event Player, Button(Ability 1));
+			"training bot"
+			Else If(Event Player.bottype == 10);
+				Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+				Disable Movement Collision With Players(Event Player);
+				Set Knockback Received(Event Player, 0);
+				Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			End;
+		Else If(100 <= Event Player.bottype && Event Player.bottype < 200);
+			Clear Status(Event Player, Invincible);
+			Wait Until(Position Of(Event Player) != 0, 99999);
+			Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			Skip(Array(0, 6)[Event Player.bottype - 100]);
+			"ult bot:6"
+			While(True);
+				Set Ultimate Charge(Event Player, 100);
+				Press Button(Event Player, Button(Ultimate));
+				Wait(0.016, Ignore Condition);
+				Wait Until(!Is Using Ultimate(Event Player), 99999);
+			End;
+			"position-fixed bot:1"
+			Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+		Else If(900 <= Event Player.bottype);
+			Skip(Array(0)[Event Player.bottype - 900]);
+			"vehicle"
+			Event Player.nameid[0] = String("", Event Player.botvars[1]);
+			Start Forcing Dummy Bot Name(Event Player, Event Player.nameid[0]);
+			Set Move Speed(Event Player, 200);
+			Start Throttle In Direction(Event Player, Update Every Frame(Vector Towards(Event Player, Event Player.botvars[1] + 2 * Down)),
+				Update Every Frame(3 * Distance Between(Event Player, Event Player.botvars[1] + 2 * Down)), To World,
+				Replace existing throttle, Direction and Magnitude);
+			Start Facing(Event Player, Facing Direction Of(Event Player.botvars[1]), 10000, To World, Direction and Turn Rate);
+			Start Rule(vehi1, Restart Rule);
+			Start Rule(vehi2, Restart Rule);
+			While(True);
+				Wait Until(!Is Using Ultimate(Event Player), 99999);
+				Set Ultimate Charge(Event Player, 100);
+				Press Button(Event Player, Button(Ultimate));
+				Wait(0.016, Ignore Condition);
+			End;
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Event Player.nameid[0] = Custom String("hello world!");
+			Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+			Start Rule(eyetrack, Do Nothing);
+			Start Holding Button(Event Player, Button(Secondary Fire));
+			Wait(0.064, Ignore Condition);
+			Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			While(True);
+				Wait Until(Event Player.botvars[0] != Null && Absolute Value(Angle Between Vectors(Vector Towards(Event Player,
+					Event Player.botvars[0]), Vector(Sine From Degrees(Horizontal Facing Angle Of(Event Player)), 0, Cosine From Degrees(
+					Horizontal Facing Angle Of(Event Player))))) < 30, 99999);
+				Press Button(Event Player, Button(Primary Fire));
+				Wait(0.160, Ignore Condition);
+			End;
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+			Disable Movement Collision With Players(Event Player);
+			Set Knockback Received(Event Player, 100);
+			Wait(1, Ignore Condition);
+			Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			Enable Built-In Game Mode Respawning(Event Player);
+			Start Rule(eyetrack, Do Nothing);
+			While(True);
+				Wait Until(Closest Player To(Position Of(Event Player), Opposite Team Of(Team Of(Event Player))) != Null && Distance Between(
+					Event Player, Closest Player To(Position Of(Event Player), Opposite Team Of(Team Of(Event Player)))) <= 10, 99999);
+				Press Button(Event Player, Button(Ability 2));
+				Wait(1.200, Ignore Condition);
+			End;
+		"venom"
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+			Event Player.stat[5] = True;
+			Set Invisible(Event Player, All);
+			Disable Movement Collision With Players(Event Player);
+			Wait(0.016, Ignore Condition);
+			Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+			Set Facing(Event Player, Down, To World);
+			Wait(0.016, Ignore Condition);
+			While(True);
+				Press Button(Event Player, Button(Ability 2));
+				Wait(4, Ignore Condition);
+			End;
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Event Player.nameid[0] = Custom String("hello world!");
+			Set Facing(Event Player, Up, To World);
+			Start Holding Button(Event Player, Button(Secondary Fire));
+		"record player"
+		Else If(Event Player.bottype == 12);
+			Start Forcing Dummy Bot Name(Event Player, Custom String("hello world!"));
+			Start Rule(mmtrackplay, Do Nothing);
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Clear Status(Event Player, Invincible);
+			Wait Until(Is On Ground(Event Player), 99999);
+			Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+			Event Player.resstat = Array(Position Of(Event Player), Facing Direction Of(Event Player));
+			Start Modifying Hero Voice Lines(Event Player, Array(0.595, 0.667, 0.749, 0.794, 0.891, 1, 1.122, 0, 0.891 / 2)[Global.botpitch],
+				False);
+			Global.botpitch += 1;
+			Global.botpitch %= 9;
+		Else If(Event Player.bottype == Custom String("hello world!"));
+			Wait Until(Array Contains(All Heroes, Hero Of(Event Player)), 99999);
+			Start Forcing Player Position(Event Player, Position Of(Event Player), False);
+			Wait Until(Global.start, 99999);
+			While(True);
+				Start Holding Button(Event Player, Button(Ability 1));
+				Wait(1, Ignore Condition);
+				Wait Until(!Is Using Ability 1(Event Player), 99999);
+				Stop Holding Button(Event Player, Button(Ability 1));
+			End;
+		End;
+	}
+}
+
+rule("shortcut: reload/set shortcut") {
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		Wait Until(Is Button Held(Event Player, Button(Reload)), 99999);
+		Global.tmp[0] = event player.menu[Event Player.menusel][Event Player.menuitemsel + 1];
+		If(Event Player.menuopen);
+			Event Player.scs[Event Player.scset] = Global.tmp[0];
+			Skip(Event Player.scset * 2);
+			Small Message(Event Player, custom String("换弹键{0}已设置为当前功能", Input Binding String(Button(Reload))));
+			Skip(11);
+			Small Message(Event Player, String("", Input Binding String(Button(Primary Fire))));
+			Skip(9);
+			Small Message(Event Player, String("", Input Binding String(Button(Secondary Fire))));
+			Skip(7);
+			Small Message(Event Player, Custom String("hello world!"));
+			Skip(5);
+			Small Message(Event Player, String("", Input Binding String(Button(Primary Fire))));
+			Skip(3);
+			Small Message(Event Player, String("", Input Binding String(Button(Secondary Fire))));
+			Skip(1);
+			Small Message(Event Player, String("", Input Binding String(Button(Reload))));
+		Else If(Global.menuable == 0);
+			Event Player.cmd = Event Player.scs[0];
+		End;
+		Wait Until(!Is Button Held(Event Player, Button(Reload)), 99999);
+		Loop;
+	}
+}
+
+rule("sub - setclr") {
+	event {Subroutine; setclr;}
+	actions {
+		"stat: 0: knocked down, 1: asleep, 5: invisible"
+		While(True);
+			Skip(Global.arg[0] * 2 + 1);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Hacked);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Burning);
+			Break;
+			Global.tmp[0] = Event Player.stat[0];
+			Break;
+			Global.tmp[0] = Event Player.stat[1];
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Frozen);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Unkillable);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Invincible);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Phased Out);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Rooted);
+			Break;
+			Global.tmp[0] = Has Status(Event Player, Stunned);
+			Break;
+			Global.tmp[0] = Event Player.stat[5];
+			Break;
+		End;
+		If(Global.arg[0] == 2);
+			Event Player.stat[0] = !Event Player.stat[0];
+		Else If(Global.arg[0] == 3);
+			Event Player.stat[1] = !Event Player.stat[1];
+		Else If(Global.arg[0] == 10);
+			Event Player.stat[5] = !Event Player.stat[5];
+		End;
+		If(Global.tmp[0]);
+			While(True);
+				Skip(Global.arg[0] * 2 + 1);
+				Break;
+				Clear Status(Event Player, Hacked);
+				Break;
+				Clear Status(Event Player, Burning);
+				Break;
+				Clear Status(Event Player, Knocked Down);
+				Break;
+				Clear Status(Event Player, Asleep);
+				Break;
+				Clear Status(Event Player, Frozen);
+				Break;
+				Clear Status(Event Player, Unkillable);
+				Break;
+				Clear Status(Event Player, Invincible);
+				Break;
+				Clear Status(Event Player, Phased Out);
+				Break;
+				Clear Status(Event Player, Rooted);
+				Break;
+				Clear Status(Event Player, Stunned);
+				Break;
+				Set Invisible(Event Player, None);
+				Break;
+			End;
+		Else;
+			While(True);
+				Skip(Global.arg[0] * 2 + 1);
+				Break;
+				Set Status(Event Player, Null, Hacked, 9999);
+				Break;
+				Set Status(Event Player, Null, Burning, 9999);
+				Break;
+				Set Status(Event Player, Null, Knocked Down, 9999);
+				Break;
+				Set Status(Event Player, Null, Asleep, 9999);
+				Break;
+				Set Status(Event Player, Null, Frozen, 9999);
+				Break;
+				Set Status(Event Player, Null, Unkillable, 9999);
+				Break;
+				Set Status(Event Player, Null, Invincible, 9999);
+				Break;
+				Set Status(Event Player, Null, Phased Out, 9999);
+				Break;
+				Set Status(Event Player, Null, Rooted, 9999);
+				Break;
+				Set Status(Event Player, Null, Stunned, 9999);
+				Break;
+				Set Invisible(Event Player, All);
+				Break;
+			End;
+		End;
+	}
+}
+
+rule("palette - init player") {
+	event { ongoing - each player; all; all; }
+	actions {
+		"(0,0,0) for black"
+		event player.palette = array(custom color(255,255,255,255), 1, 1, 1);
+	}
+}
+
+rule("sub - cmdpalette") {
+	event { subroutine; cmdpalette; }
+	actions {
+		if(global.arg[0] == 0);
+			event player.palette[1] += 1;
+			event player.palette[1] = min(7, event player.palette[1]);
+		else if(global.arg[0] == 1);
+			event player.palette[1] -= 1;
+			event player.palette[1] = max(0, event player.palette[1]);
+		else if(global.arg[0] == 2);
+			event player.palette[2] += 1;
+			event player.palette[2] = min(7, event player.palette[2]);
+		else if(global.arg[0] == 3);
+			event player.palette[2] -= 1;
+			event player.palette[2] = max(0, event player.palette[2]);
+		else if(global.arg[0] == 4);
+			event player.palette[3] += 1;
+			event player.palette[3] = min(7, event player.palette[3]);
+		else if(global.arg[0] == 5);
+			event player.palette[3] -= 1;
+			event player.palette[3] = max(0, event player.palette[3]);
+		end;
+		global.arg[0] = max(event player.palette[1],max(
+					  	event player.palette[2],
+						event player.palette[3]));
+		if(global.arg[0] == 0);
+			event player.palette[0] = custom color(0, 0, 0, 255);
+		else;
+			global.arg[1] = event player.palette[1] / global.arg[0] * 255;
+			global.arg[2] = event player.palette[2] / global.arg[0] * 255;
+			global.arg[3] = event player.palette[3] / global.arg[0] * 255;
+			event player.palette[0] = custom color(
+				round to integer(global.arg[1], to nearest),
+				round to integer(global.arg[2], to nearest),
+				round to integer(global.arg[3], to nearest),
+				255);
+		end;
+	}
+}
+
+rule("sub - cmdcustom") {
+	event {Subroutine; cmdcustom;}
+	actions {
+		if(event player.cmd == 0);
+			event player.outlcolor[4] = event player.palette[0];
+			call subroutine(outlupdate);
+		end;
+		abort;
+		If(0 <= Event Player.cmd && Event Player.cmd <= 3);
+			If(Event Player.contiarg[0]);
+				Call Subroutine(contiswitch);
+				Event Player.outlcolor[Event Player.cmd] = Global.arg[0];
+				Event Player.outlcolor[4] = Custom Color(Event Player.outlcolor[0], Event Player.outlcolor[1], Event Player.outlcolor[2],
+					Event Player.outlcolor[3]);
+				Call Subroutine(outlupdate);
+			Else;
+				Event Player.contiarg[2] = 0;
+				Event Player.contiarg[3] = 255;
+				Call Subroutine(contiswitch);
+			End;
+		End;
+	}
+}
+
+rule("sub - cmdemote") {
+	event {Subroutine; cmdemote;}
+	actions {
+		If(Global.arg[0] == 0);
+			If(Is Communicating Any Emote(Event Player));
+				Global.tmp[0] = Filtered Array(All Players(All Teams), Is In Line of Sight(Eye Position(Current Array Element), Eye Position(
+					Event Player), Barriers Do Not Block LOS) && Hero Of(Current Array Element) == Hero Of(Event Player)
+					&& Is Communicating Any Emote(Current Array Element));
+				For Global Variable(index, 0, Count Of(Global.tmp[0]), 1);
+					If(Is Communicating(Global.tmp[0][Global.index], Emote Up));
+						Cancel Primary Action(Global.tmp[0][Global.index]);
+						Communicate(Global.tmp[0][Global.index], Emote Up);
+					Else If(Is Communicating(Global.tmp[0][Global.index], Emote Left));
+						Cancel Primary Action(Global.tmp[0][Global.index]);
+						Communicate(Global.tmp[0][Global.index], Emote Left);
+					Else If(Is Communicating(Global.tmp[0][Global.index], Emote Right));
+						Cancel Primary Action(Global.tmp[0][Global.index]);
+						Communicate(Global.tmp[0][Global.index], Emote Right);
+					Else If(Is Communicating(Global.tmp[0][Global.index], Emote Down));
+						Cancel Primary Action(Global.tmp[0][Global.index]);
+						Communicate(Global.tmp[0][Global.index], Emote Down);
+					End;
+				End;
+			End;
+		Else If(Global.arg[0] == 1);
+			If(Is Communicating Any Emote(Event Player));
+				Global.tmp[0] = Filtered Array(All Players(All Teams), Is In Line of Sight(Eye Position(Current Array Element), Eye Position(
+					Event Player), Barriers Do Not Block LOS) && Hero Of(Current Array Element) == Hero Of(Event Player));
+				Global.tmp[0] = Mapped Array(Global.tmp[0], Array(X Component Of(Local Vector Of(Position Of(Current Array Element), Event Player,
+					Rotation And Translation)), Current Array Element));
+				Global.tmp[0] = Sorted Array(Global.tmp[0], Current Array Element[0]);
+				Global.tmp[1] = Index Of Array Value(Mapped Array(Global.tmp[0], Current Array Element[1]), Event Player);
+				Global.tmp[2] = 100;
+				If(0 < Global.tmp[1]);
+					Global.tmp[2] = Min(Global.tmp[2], First Of(Global.tmp[0])[0] / (0 - Global.tmp[1]));
+				End;
+				If(Global.tmp[1] < Count Of(Global.tmp[0]) - 1);
+					Global.tmp[2] = Min(Global.tmp[2], Last Of(Global.tmp[0])[0] / (Count Of(Global.tmp[0]) - 1 - Global.tmp[1]));
+				End;
+				For Global Variable(index, 0, Count Of(Global.tmp[0]), 1);
+					Teleport(Global.tmp[0][Global.index][1], World Vector Of((Global.index - Global.tmp[1]) * Global.tmp[2] * Left, Event Player,
+						Rotation And Translation));
+					Set Facing(Global.tmp[0][Global.index][1], Facing Direction Of(Event Player), To World);
+					If(Is Communicating(Global.tmp[0][Global.index][1], Emote Up));
+						Cancel Primary Action(Global.tmp[0][Global.index][1]);
+						Communicate(Global.tmp[0][Global.index][1], Emote Up);
+					Else If(Is Communicating(Global.tmp[0][Global.index][1], Emote Left));
+						Cancel Primary Action(Global.tmp[0][Global.index][1]);
+						Communicate(Global.tmp[0][Global.index][1], Emote Left);
+					Else If(Is Communicating(Global.tmp[0][Global.index][1], Emote Right));
+						Cancel Primary Action(Global.tmp[0][Global.index][1]);
+						Communicate(Global.tmp[0][Global.index][1], Emote Right);
+					Else If(Is Communicating(Global.tmp[0][Global.index][1], Emote Down));
+						Cancel Primary Action(Global.tmp[0][Global.index][1]);
+						Communicate(Global.tmp[0][Global.index][1], Emote Down);
+					End;
+				End;
+				Global.tmp = Empty Array;
+			End;
+		"repeat emote"
+		Else If(Global.arg[0] == 100);
+			If(Event Player.subflags[3]);
+				Event Player.subflags[3] = False;
+				Small Message(Event Player, Custom String("hello world!"));
+			Else;
+				Start Rule(emoterepeat, Do Nothing);
+				Small Message(Event Player, Custom String("hello world!"));
+			End;
+		End;
+	}
+}
+
+rule("sub-cmdemote") {
+	event {Subroutine; cmdrts;}
+	actions {
+		Event Player.cmd -= 10000;
+		If(Event Player.cmd < 100);
+			Event Player.rtsenv[0].rtsarg[0] = True;
+			Event Player.rtsenv[0].rtsarg[1] = Event Player.cmd;
+			If(Array Contains(Array(2, 7), Event Player.cmd));
+				Event Player.rtsenv[0].rtsarg[4] = Player Closest To Reticle(Event Player, All Teams);
+				Play Effect(Event Player, Ring Explosion, Color(Yellow), Player Closest To Reticle(Event Player, All Teams), 1);
+			Else If(Array Contains(Array(1, 3), Event Player.cmd));
+				Event Player.rtsenv[0].rtsarg[2] = Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+					+ Facing Direction Of(Event Player) * 100, Null, Null, False);
+				Play Effect(Event Player, Ring Explosion, Color(Yellow), Ray Cast Hit Position(Eye Position(Event Player), Eye Position(
+					Event Player) + Facing Direction Of(Event Player) * 100, Null, Null, False), 1);
+			End;
+		"select"
+		Else If(Event Player.cmd == 100);
+			Global.tmp[0] = Player Closest To Reticle(Event Player, All Teams);
+			If(Event Player == Host Player || (Global.tmp[0].bottype == 4 && Global.tmp[0].botvars[0] == Event Player.nameid[1]));
+				If(Array Contains(Event Player.rtsenv[0], Global.tmp[0]));
+					Modify Player Variable At Index(Event Player, rtsenv, 0, Remove From Array By Value, Global.tmp[0]);
+				Else;
+					Modify Player Variable At Index(Event Player, rtsenv, 0, Append To Array, Global.tmp[0]);
+				End;
+				For Global Variable(index, 0, Count Of(Event Player.rtsenv[0]), 1);
+					Play Effect(Event Player, Good Pickup Effect, Color(Green), Event Player.rtsenv[0][Global.index], 1);
+				End;
+			Else;
+				Small Message(Event Player, Custom String("hello world!"));
+			End;
+		"target mode"
+		Else If(Event Player.cmd == 101);
+			If(Event Player.rtsenv[1]);
+				Event Player.rtsenv[1] = False;
+			Else;
+				Event Player.rtsenv[1] = True;
+			End;
+			Small Message(Event Player, Event Player.rtsenv[1] ? Custom String("hello world!") : Custom String("hello world!"));
+		"unselect"
+		Else If(Event Player.cmd == 102);
+			Event Player.rtsenv[0] = Empty Array;
+			For Global Variable(index, 0, Count Of(Event Player.rtsenv[0]), 1);
+				Play Effect(Event Player, Good Pickup Effect, Color(Green), Event Player.rtsenv[0][Global.index], 1);
+			End;
+		"destroy all bots"
+		Else If(Event Player.cmd == 103);
+			For Global Variable(index, 0, Count Of(All Players(All Teams)), 1);
+				If(All Players(All Teams)[Global.index].bottype == 4 && Event Player.nameid[1] == All Players(All Teams)[Global.index].botvars[0]);
+					Destroy Dummy Bot(Team Of(All Players(All Teams)[Global.index]), Slot Of(All Players(All Teams)[Global.index]));
+				End;
+			End;
+		End;
+	}
+}
+
+rule("sub - cmdmvmod") {
+	event {Subroutine; cmdmvmod;}
+	actions {
+		Skip(Array(0, 0)[Event Player.cmd]);
+		"0default, 1rider(15"
+		Global.tmp[0] = Filtered Array(All Players(All Teams),
+			Current Array Element.bottype == 900 && Event Player.nameid[1] == Current Array Element.botvars[0]);
+		If(Count Of(Global.tmp[0]) > 0);
+			Destroy Dummy Bot(Team Of(Global.tmp[0][0]), Slot Of(Global.tmp[0][0]));
+		End;
+		If(Event Player.cmd == 0);
+			Abort;
+		End;
+		Create Dummy Bot(Hero(Mercy), Opposite Team Of(Team Of(Event Player)), -1, Position Of(Event Player) + 1 * Down,
+			Facing Direction Of(Event Player));
+		If(!Is Dummy Bot(Last Created Entity));
+			Small Message(Event Player, Custom String("hello world!"));
+		Else;
+			Last Created Entity.bottype = 900;
+			Last Created Entity.botvars[0] = Event Player.nameid[1];
+			Last Created Entity.botvars[1] = Event Player;
+		End;
+	}
+}
+
+rule("sndrec")
+{
+	event
+	{
+		Subroutine;
+		sndrec;
+	}
+
+	actions
+	{
+		Event Player.subflags[5] = True;
+		Event Player.sndrec = Array();
+		Wait Until(!Event Player.subflags[5], 99999);
+		Event Player.sndrec = Array Slice(Event Player.sndrec, 0, Count Of(Event Player.sndrec) - 2);
+	}
+}
+
+rule("sndplay")
+{
+	event
+	{
+		Subroutine;
+		sndplay;
+	}
+
+	actions
+	{
+		Event Player.subflags[6] = True;
+		If(Count Of(Event Player.sndrec) < 2);
+			Event Player.subflags[6] = False;
+			Abort;
+		End;
+		While(Event Player.subflags[6] && !Event Player.subflags[5]);
+			Global.arg[0] = Event Player.sndrec[0];
+			Call Subroutine(cmdsnd);
+			Wait Until(Event Player.subflags[5] || !Event Player.subflags[6], Event Player.sndrec[1]);
+			If(Event Player.subflags[5] || !Event Player.subflags[6]);
+				Break;
+			End;
+			Event Player.sndrec = Append To Array(Array Slice(Event Player.sndrec, 2, Count Of(Event Player.sndrec)), Array Slice(
+				Event Player.sndrec, 0, 2));
+		End;
+		Event Player.subflags[6] = False;
+	}
+}
+
+rule("func: spin") {// TODO change to a subroutine 
+	event {Ongoing - Each Player; All; All;}
+	actions {
+		While(True);
+			If(Event Player.spintype == 1);
+				Stop Chasing Player Variable(Event Player, spinangle);
+				Stop Facing(Event Player);
+				Event Player.stat[2] = 1;
+			Else If(Event Player.spintype == 2);
+				Event Player.spinanglebase = Vertical Facing Angle Of(Event Player);
+				Event Player.spinangle = Horizontal Facing Angle Of(Event Player);
+				Chase Player Variable At Rate(Event Player, spinangle, Event Player.spinangle + 360, Event Player.spinrate, Destination and Rate);
+				Start Facing(Event Player, Vector(Cosine From Degrees(Event Player.spinanglebase) * Sine From Degrees(Event Player.spinangle),
+					0 - Sine From Degrees(Event Player.spinanglebase), Cosine From Degrees(Event Player.spinanglebase) * Cosine From Degrees(
+					Event Player.spinangle)), Event Player.spinrate, To World, Direction and Turn Rate);
+				If(Event Player.stat[2] != -4);
+					Event Player.eyelookat = Array(Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+						- 6 * Facing Direction Of(Event Player), Null, Null, False), Eye Position(Event Player));
+					Event Player.stat[2] = 5;
+				End;
+			Else If(Event Player.spintype == 3);
+				Event Player.spinanglebase = Horizontal Facing Angle Of(Event Player) + 90;
+				Event Player.spinangle = Vertical Facing Angle Of(Event Player);
+				Chase Player Variable At Rate(Event Player, spinangle, Event Player.spinangle + 360, Event Player.spinrate, Destination and Rate);
+				Start Facing(Event Player, Vector(Cosine From Degrees(Event Player.spinangle) * Sine From Degrees(Event Player.spinanglebase),
+					0 - Sine From Degrees(Event Player.spinangle), Cosine From Degrees(Event Player.spinangle) * Cosine From Degrees(
+					Event Player.spinanglebase)), 10000, To World, Direction and Turn Rate);
+				If(Event Player.stat[2] != -4);
+					Event Player.eyelookat = Array(Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+						- 6 * Facing Direction Of(Event Player), Null, Null, False), Eye Position(Event Player));
+					Event Player.stat[2] = 5;
+				End;
+			End;
+			Event Player.spintype = 0 - Event Player.spintype;
+			Wait Until(Event Player.spintype > 0, 99999);
+		End;
+	}
+}
+
+rule("func: nPerspective") { // TODO change to a subroutine
+	event {Ongoing - Each Player; All; All;}
+	conditions {
+		Is Dummy Bot(Event Player) == False;
+	}
+	actions {
+		While(True);
+			If(Event Player.stat[2] == 1);
+				Stop Camera(Event Player);
+			Else If(Event Player.stat[2] == 2);
+				Start Camera(Event Player, Update Every Frame(Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+					+ Facing Direction Of(Event Player) * 3 * Event Player.stat[6], Null, Null, False)), Update Every Frame(Eye Position(
+					Event Player)), 0);
+			Else If(Event Player.stat[2] == 3);
+				Start Camera(Event Player, Update Every Frame(Ray Cast Hit Position(Eye Position(Event Player), Eye Position(Event Player)
+					+ Facing Direction Of(Event Player) * -3 * Event Player.stat[6], Null, Null, False)), Update Every Frame(Eye Position(
+					Event Player)), 0);
+			Else If(Event Player.stat[2] == 4);
+				Event Player.eyelookat = Array(Eye Position(Event Player), Eye Position(Event Player) + Facing Direction Of(Event Player));
+				Start Camera(Event Player, Event Player.eyelookat[0], Event Player.eyelookat[1], 0);
+			Else If(Event Player.stat[2] == 5);
+				Event Player.stat[2] = 4;
+				Start Camera(Event Player, Event Player.eyelookat[0], Event Player.eyelookat[1], 0);
+			Else If(Event Player.stat[2] == 6);
+				"inspect"
+				Event Player.stat[2] = 4;
+			End;
+			Event Player.stat[2] = 0 - Event Player.stat[2];
+			If(Global.camlock);
+				Event Player.stat[2] = -4;
+			End;
+			Wait Until(!Global.camlock && (Event Player.stat[2] > 0 || (Is Communicating Any Emote(Event Player)
+				&& Event Player.stat[2] != -4)), 99999);
+			If(Is Communicating Any Emote(Event Player) && Event Player.stat[2] != -4);
+				Break;
+			End;
+		End;
+		Stop Camera(Event Player);
+		Wait Until(!Is Communicating Any Emote(Event Player) || Event Player.stat[2] == 4, 99999);
+		Loop;
+	}
+}
+
+rule("rule - massfire") {
+	event {Subroutine; massfire;}
+	actions {
+		Event Player.subflags[0] = True;
+		While(True);
+			Wait Until(Is Firing Primary(Event Player) || Is Firing Secondary(Event Player) || !Event Player.subflags[0], 99999);
+			If(!Event Player.subflags[0]);
+				Break;
+			End;
+			Set Projectile Speed(Event Player, Event Player.stat[4]);
+			Wait Until(!Event Player.subflags[0], 0.016);
+		End;
+	}
+}
+
+rule("sub: infammo")
+{
+	event
+	{
+		Subroutine;
+		infammo;
+	}
+
+	actions
+	{
+		Event Player.subflags[1] = True;
+		While(True);
+			Wait Until(Ammo(Event Player, 0) > 0 || !Event Player.subflags[1], 99999);
+			If(!Event Player.subflags[1]);
+				Abort;
+			End;
+			Wait Until(Ammo(Event Player, 0) == 0 || !Event Player.subflags[1], 99999);
+			If(!Event Player.subflags[1]);
+				Abort;
+			End;
+			Set Ammo(Event Player, 0, Max Ammo(Event Player, 0));
+		End;
+	}
+}
+
+rule("")
+{
+	event
+	{
+		Subroutine;
+		emoterepeat;
+	}
+
+	actions
+	{
+		Event Player.subflags[3] = True;
+		While(True);
+			Wait Until(Is Communicating Any Emote(Event Player) || !Event Player.subflags[3], 99999);
+			If(!Event Player.subflags[3]);
+				Break;
+			End;
+			If(Is Communicating(Event Player, Emote Up));
+				Wait Until(!Is Communicating Any Emote(Event Player) || !Event Player.subflags[3], 99999);
+				If(!Event Player.subflags[3]);
+					Break;
+				End;
+				Communicate(Event Player, Emote Up);
+			Else If(Is Communicating(Event Player, Emote Left));
+				Wait Until(!Is Communicating Any Emote(Event Player) || !Event Player.subflags[3], 99999);
+				If(!Event Player.subflags[3]);
+					Break;
+				End;
+				Communicate(Event Player, Emote Left);
+			Else If(Is Communicating(Event Player, Emote Right));
+				Wait Until(!Is Communicating Any Emote(Event Player) || !Event Player.subflags[3], 99999);
+				If(!Event Player.subflags[3]);
+					Break;
+				End;
+				Communicate(Event Player, Emote Right);
+			Else If(Is Communicating(Event Player, Emote Down));
+				Wait Until(!Is Communicating Any Emote(Event Player) || !Event Player.subflags[3], 99999);
+				If(!Event Player.subflags[3]);
+					Break;
+				End;
+				Communicate(Event Player, Emote Down);
+			End;
+		End;
+	}
+}
+
+rule("sub: orisaprint")
+{
+	event
+	{
+		Subroutine;
+		orisaprint;
+	}
+
+	actions
+	{
+		Event Player.oriprint[0] = False;
+		Event Player.oriprint[1] = Total Time Elapsed;
+		Event Player.oriprint[8] = 0;
+		Event Player.oriprint[9] = Total Time Elapsed;
+		Event Player.oriprint[10] = Total Time Elapsed + 1;
+		Set Projectile Speed(Event Player, Event Player.oriprint[5]);
+		Small Message(Event Player, Custom String("hello world!"));
+		Wait Until(!Event Player.menuopen, 99999);
+		Small Message(Event Player, Custom String("hello world!"));
+		Start Rule(massfire, Restart Rule);
+		Set Invisible(Event Player, All);
+		Start Forcing Player To Be Hero(Event Player, Hero(Orisa));
+		Disable Movement Collision With Environment(Event Player, True);
+		Start Forcing Player Position(Event Player, Event Player.oriprint[2] + (Total Time Elapsed - Event Player.oriprint[1])
+			* Event Player.oriprint[5] * Event Player.oriprint[4] + (Event Player.oriprint[3][Event Player.oriprint[8]] * (
+			Event Player.oriprint[10] - Total Time Elapsed) + Event Player.oriprint[3][Event Player.oriprint[8] + 2] * (
+			Total Time Elapsed - Event Player.oriprint[9])) / (Event Player.oriprint[10] - Event Player.oriprint[9]) * Normalize(Vector(
+			0 - Z Component Of(Event Player.oriprint[4]), 0, X Component Of(Event Player.oriprint[4]))) * Event Player.oriprint[6] + (
+			Event Player.oriprint[3][Event Player.oriprint[8] + 1] * (Event Player.oriprint[10] - Total Time Elapsed)
+			+ Event Player.oriprint[3][Event Player.oriprint[8] + 3] * (Total Time Elapsed - Event Player.oriprint[9])) / (
+			Event Player.oriprint[10] - Event Player.oriprint[9]) * Normalize(Vector(0 - X Component Of(Event Player.oriprint[4])
+			* Y Component Of(Event Player.oriprint[4]), X Component Of(Event Player.oriprint[4]) * X Component Of(Event Player.oriprint[4])
+			+ Z Component Of(Event Player.oriprint[4]) * Z Component Of(Event Player.oriprint[4]), 0 - Z Component Of(
+			Event Player.oriprint[4]) * Y Component Of(Event Player.oriprint[4]))) * Event Player.oriprint[7] + Down * 1.780, True);
+		Set Max Ammo(Event Player, 0, 1000);
+		Set Ammo(Event Player, 0, 1000);
+		Start Holding Button(Event Player, Button(Primary Fire));
+		While(Event Player.oriprint[8] < Count Of(Event Player.oriprint[3]));
+			Event Player.oriprint[9] = Total Time Elapsed;
+			Event Player.oriprint[10] = Total Time Elapsed + Square Root((
+				Event Player.oriprint[3][Event Player.oriprint[8] + 2] - Event Player.oriprint[3][Event Player.oriprint[8]]) * (
+				Event Player.oriprint[3][Event Player.oriprint[8] + 2] - Event Player.oriprint[3][Event Player.oriprint[8]]) + (
+				Event Player.oriprint[3][Event Player.oriprint[8] + 3] - Event Player.oriprint[3][Event Player.oriprint[8] + 1]) * (
+				Event Player.oriprint[3][Event Player.oriprint[8] + 3] - Event Player.oriprint[3][Event Player.oriprint[8] + 1]))
+				/ Event Player.oriprint[3][Event Player.oriprint[8] + 4];
+			Wait Until(Event Player.menuopen, Event Player.oriprint[10] - Event Player.oriprint[9]);
+			Log To Inspector(Event Player.oriprint[9]);
+			Log To Inspector(Event Player.oriprint[10]);
+			If(Event Player.menuopen);
+				Break;
+			End;
+			Event Player.oriprint[8] += 5;
+		End;
+		Stop Holding Button(Event Player, Button(Primary Fire));
+		Set Ammo(Event Player, 0, 150);
+		Set Max Ammo(Event Player, 0, 150);
+		Stop Forcing Player Position(Event Player);
+		Teleport(Event Player, Event Player.oriprint[11]);
+		Enable Movement Collision With Environment(Event Player);
+		Stop Forcing Player To Be Hero(Event Player);
+		Set Invisible(Event Player, None);
+		Event Player.stat[2] = 1;
+		Event Player.oriprint[0] = True;
+	}
+}
+
+rule("")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	actions
+	{
+		If(Event Player.actflag);
+			Event Player.actseq = 0;
+			While(True);
+				If(Event Player.actlist[Event Player.actseq][0] == 0);
+					If(Event Player.actlist[Event Player.actseq][1] > 0);
+						Wait(Event Player.actlist[Event Player.actseq][1], Ignore Condition);
+					Else If(Event Player.actlist[Event Player.actseq][1] == 0);
+						Break;
+					Else;
+						Event Player.actseq = 0 - Event Player.actlist[Event Player.actseq][1];
+					End;
+				Else If(Event Player.actlist[Event Player.actseq][0] == 1);
+					Stop Throttle In Direction(Event Player);
+					Event Player.thrlist = Array Slice(Event Player.actlist[Event Player.actseq], 1, Count Of(
+						Event Player.actlist[Event Player.actseq]));
+					Start Rule(groovethr, Restart Rule);
+				Else If(Event Player.actlist[Event Player.actseq][0] == 2);
+					Stop Facing(Event Player);
+					Event Player.faclist = Array Slice(Event Player.actlist[Event Player.actseq], 1, Count Of(
+						Event Player.actlist[Event Player.actseq]));
+					Start Rule(groovefac, Restart Rule);
+				Else If(Event Player.actlist[Event Player.actseq][0] == 3);
+				End;
+				Event Player.actseq += 1;
+			End;
+		End;
+	}
+}
+
+rule("sub: groovethr")
+{
+	event
+	{
+		Subroutine;
+		groovethr;
+	}
+
+	actions
+	{
+		Event Player.thrseq = 1;
+		Set Move Speed(Event Player, 50);
+		Start Throttle In Direction(Event Player, Event Player.thrlist[Event Player.thrseq], 1, To World, Replace existing throttle,
+			Direction and Magnitude);
+		While(True);
+			Wait(Event Player.thrlist[0], Ignore Condition);
+			Event Player.thrseq += 1;
+			If(Event Player.thrlist[Event Player.thrseq] == 0);
+				Event Player.thrseq = 1;
+			End;
+		End;
+	}
+}
+
+rule("sub: groovefac")
+{
+	event
+	{
+		Subroutine;
+		groovefac;
+	}
+
+	actions
+	{
+		Event Player.facseq = 2;
+		Start Facing(Event Player, Event Player.faclist[Event Player.facseq], Event Player.faclist[1], To World, Direction and Turn Rate);
+		While(True);
+			Wait(Event Player.faclist[0], Ignore Condition);
+			Event Player.facseq += 1;
+			If(Event Player.faclist[Event Player.facseq] == 0);
+				Event Player.facseq = 2;
+			End;
+		End;
+	}
+}
+
+rule("sub - bot - eyetrack")
+{
+	event
+	{
+		Subroutine;
+		eyetrack;
+	}
+
+	actions
+	{
+		Wait Until(Filtered Array(Remove From Array(All Players(All Teams), Event Player), Is In Line of Sight(Eye Position(Event Player),
+			Eye Position(Current Array Element), Barriers Do Not Block LOS) && Distance Between(Event Player, Current Array Element) < 10)
+			!= Empty Array, 99999);
+		Event Player.botvars[0] = Filtered Array(Remove From Array(All Players(All Teams), Event Player), Is In Line of Sight(Eye Position(
+			Event Player), Eye Position(Current Array Element), Barriers Do Not Block LOS));
+		Event Player.botvars[0] = First Of(Sorted Array(Event Player.botvars[0], Distance Between(Event Player, Current Array Element)));
+		Start Facing(Event Player, Vector Towards(Eye Position(Event Player), Eye Position(Event Player.botvars[0])), 360, To World,
+			Direction and Turn Rate);
+		Wait Until(Event Player.botvars[0] == Null || Filtered Array(Remove From Array(All Players(All Teams), Event Player),
+			Is In Line of Sight(Eye Position(Event Player), Eye Position(Current Array Element), Barriers Do Not Block LOS)
+			&& Distance Between(Event Player, Current Array Element) < Distance Between(Event Player, Event Player.botvars[0]))
+			!= Empty Array, 99999);
+		Event Player.botvars[0] = Null;
+		Stop Facing(Event Player);
+		Loop;
+	}
+}
+
+rule("sub - bot - hello")
+{
+	event
+	{
+		Subroutine;
+		hello;
+	}
+
+	actions
+	{
+		Wait Until(Event Player.botvars[0] != Null && Is Communicating(Event Player.botvars[0], Hello), 99999);
+		Communicate(Event Player, Hello);
+		Wait Until(!(Event Player.botvars[0] != Null && Is Communicating(Event Player.botvars[0], Hello)), 99999);
+		Loop;
+	}
+}
+
+rule("sub: mmtrackplay")
+{
+	event
+	{
+		Subroutine;
+		mmtrackplay;
+	}
+
+	actions
+	{
+		Event Player.mmindex = -1;
+		Wait Until(Global.start, 99999);
+		While(True);
+			Event Player.mmindex += 1;
+			Event Player.mmindex %= Count Of(Event Player.mmrhythm);
+			"convert char to pitch"
+			If(Event Player.mmindex > String Length(Event Player.mmmelody) - 1);
+				Event Player.mmpitch = Event Player.mmpitchbase;
+			Else;
+				Event Player.mmpitch = Event Player.mmpitchbase * Array(0.595, 0.667, 0.749, 0.794, 0.891, 1, 1.122, 0, 0.891 / 2)
+					[Index Of String Char(Custom String("hello world!"), Char In String(Event Player.mmmelody, Event Player.mmindex))];
+			End;
+			If(Event Player.mmpitch != 0);
+				Start Modifying Hero Voice Lines(Event Player, Event Player.mmpitch, False);
+				Set Ultimate Charge(Event Player, 100);
+				Press Button(Event Player, Button(Ultimate));
+			End;
+			Wait(Event Player.mmrhythm[Event Player.mmindex] * Global.mmunitt - 0.016, Ignore Condition);
+			Set Status(Event Player, Null, Frozen, 0.016);
+			Clear Status(Event Player, Frozen);
+			Wait(0.016, Ignore Condition);
+		End;
+	}
+}
+
+rule("sub: mmbeatmaker")
+{
+	event
+	{
+		Subroutine;
+		mmbeatmaker;
+	}
+
+	actions
+	{
+		Event Player.mmrhythm = Array();
+		Event Player.prompt = Custom String("hello world!");
+		While(True);
+			Wait Until(Is Button Held(Event Player, Button(Primary Fire)) || Is Button Held(Event Player, Button(Secondary Fire)), 99999);
+			If(Is Button Held(Event Player, Button(Secondary Fire)));
+				Modify Player Variable(Event Player, mmrhythm, Remove From Array By Index, Count Of(Event Player.mmrhythm) - 1);
+				Event Player.prompt = String("", Event Player.prompt);
+				Break;
+			End;
+			If(Count Of(Event Player.mmrhythm) > 0);
+				Event Player.mmrhythm[Count Of(Event Player.mmrhythm) - 1] = Round To Integer((Total Time Elapsed - Last Of(Event Player.mmrhythm))
+					/ Global.mmunitt, To Nearest);
+				Event Player.prompt = String("", Event Player.prompt, Last Of(Event Player.mmrhythm));
+			End;
+			Modify Player Variable(Event Player, mmrhythm, Append To Array, Total Time Elapsed);
+			Wait Until(!Is Button Held(Event Player, Button(Primary Fire)), 99999);
+		End;
+	}
+}
+
+rule("start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Wait Until(Global.start, 99999);
+		Wait(0.016, Ignore Condition);
+		Global.start = False;
+		Loop;
+	}
+}
+
+rule("")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	actions
+	{
+		"rtsarg[0]:{true:exec,false:wait}trigger;rtsarg[1]:{0:stop,1:move,2:attack,3:patrol}"
+		Wait Until(Event Player.rtsarg[0], 99999);
+		Start Rule(rtscmd, Restart Rule);
+		Event Player.rtsarg[0] = False;
+		Loop;
+	}
+}
+
+rule("sub-vehi1")
+{
+	event
+	{
+		Subroutine;
+		vehi1;
+	}
+
+	actions
+	{
+		While(True);
+			Wait Until(!Is In Line of Sight(Event Player, Event Player.botvars[1], Barriers Do Not Block LOS) || Distance Between(Event Player,
+				Event Player.botvars[1]) > 4, 99999);
+			Teleport(Event Player, Event Player.botvars[1] + 2 * Down);
+			Wait(0.016, Ignore Condition);
+		End;
+	}
+}
+
+rule("sub-vehi2")
+{
+	event
+	{
+		Subroutine;
+		vehi2;
+	}
+
+	actions
+	{
+		While(True);
+			Wait Until(Absolute Value(Y Component Of(Position Of(Event Player.botvars[1]) + 2 * Down - Position Of(Event Player))) > 1, 99999);
+			If(Y Component Of(Position Of(Event Player.botvars[1]) + 2 * Down - Position Of(Event Player)) > 0);
+				Start Holding Button(Event Player, Button(Jump));
+			Else;
+				Start Holding Button(Event Player, Button(Crouch));
+			End;
+			Wait Until(Absolute Value(Y Component Of(Position Of(Event Player.botvars[1]) + 2 * Down - Position Of(Event Player))) <= 1,
+				99999);
+			Stop Holding Button(Event Player, Button(Jump));
+			Stop Holding Button(Event Player, Button(Crouch));
+		End;
+	}
+}
+
+rule("")
+{
+	event
+	{
+		Subroutine;
+		rtscmd;
+	}
+
+	actions
+	{
+		Skip(Array(0, 5, 10, 17, 27, 32, 37, 41, 48)[Event Player.rtsarg[1]]);
+		"stop:5"
+		Stop Throttle In Direction(Event Player);
+		Stop Facing(Event Player);
+		Stop Holding Button(Event Player, Button(Primary Fire));
+		Stop Holding Button(Event Player, Button(Secondary Fire));
+		Abort;
+		"move:5"
+		Start Throttle In Direction(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[2]), 1, To World,
+			Replace existing throttle, Direction and Magnitude);
+		Set Facing(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[2]), To World);
+		Wait Until(!Array Contains(All Players(All Teams), Event Player.rtsarg[2]) && Distance Between(Position Of(Event Player),
+			Event Player.rtsarg[2]) < 1, 99999);
+		Stop Throttle In Direction(Event Player);
+		Abort;
+		"primary:7"
+		Start Facing(Event Player, Vector Towards(Eye Position(Event Player), Eye Position(Event Player.rtsarg[4])), 100, To World,
+			Direction and Turn Rate);
+		Start Holding Button(Event Player, Button(Primary Fire));
+		Stop Holding Button(Event Player, Button(Secondary Fire));
+		Wait Until(!Array Contains(All Players(All Teams), Event Player.rtsarg[4]), 99999);
+		Stop Facing(Event Player);
+		Stop Holding Button(Event Player, Button(Primary Fire));
+		Abort;
+		"patrol:10"
+		Event Player.rtsarg[3] = Position Of(Event Player);
+		While(True);
+			Start Throttle In Direction(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[2]), 1, To World,
+				Replace existing throttle, Direction and Magnitude);
+			Set Facing(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[2]), To World);
+			Wait Until(!Array Contains(All Players(All Teams), Event Player.rtsarg[2]) && Distance Between(Position Of(Event Player),
+				Event Player.rtsarg[2]) < 1, 99999);
+			Start Throttle In Direction(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[3]), 1, To World,
+				Replace existing throttle, Direction and Magnitude);
+			Set Facing(Event Player, Vector Towards(Position Of(Event Player), Event Player.rtsarg[3]), To World);
+			Wait(0.016, Ignore Condition);
+			Wait Until(!Array Contains(All Players(All Teams), Event Player.rtsarg[3]) && Distance Between(Position Of(Event Player),
+				Event Player.rtsarg[3]) < 1, 99999);
+		End;
+		"ability1:5"
+		Cancel Primary Action(Event Player);
+		Set Ability Cooldown(Event Player, Button(Ability 1), 0);
+		Set Ability Resource(Event Player, Button(Ability 1), 100);
+		Press Button(Event Player, Button(Ability 1));
+		Abort;
+		"ability2:5"
+		Cancel Primary Action(Event Player);
+		Set Ability Cooldown(Event Player, Button(Ability 2), 0);
+		Set Ability Resource(Event Player, Button(Ability 2), 100);
+		Press Button(Event Player, Button(Ability 2));
+		Abort;
+		"ultimate:4"
+		Cancel Primary Action(Event Player);
+		Set Ultimate Charge(Event Player, 100);
+		Press Button(Event Player, Button(Ultimate));
+		Abort;
+		"secondary:7"
+		Start Facing(Event Player, Vector Towards(Eye Position(Event Player), Eye Position(Event Player.rtsarg[4])), 100, To World,
+			Direction and Turn Rate);
+		Start Holding Button(Event Player, Button(Secondary Fire));
+		Stop Holding Button(Event Player, Button(Primary Fire));
+		Wait Until(!Array Contains(All Players(All Teams), Event Player.rtsarg[4]), 99999);
+		Stop Facing(Event Player);
+		Stop Holding Button(Event Player, Button(Secondary Fire));
+		Abort;
+		"cloack:7"
+		If(Event Player.stat[5]);
+			Set Invisible(Event Player, None);
+		Else;
+			Set Invisible(Event Player, All);
+		End;
+		Event Player.stat[5] = !Event Player.stat[5];
+		Abort;
+	}
+}
+
+rule("sub - menuupdate") {
+	event {Subroutine; menuupdate;}
+	actions {
+		If(!Event Player.menuopen);
+			Abort;
+		End;
+		Event Player.menutxt = Custom String("{0}{1}", event player.menu[Event Player.menusel][1] == 0 ? Custom String("") : (
+			Event Player.menuitemsel == 0 ? Custom String("@ ") : Custom String("O ")), event player.menu[Event Player.menusel][0]);
+		For Global Variable(index, 2, Count Of(event player.menu[Event Player.menusel]), 2);
+			Event Player.menutxt = Custom String("{2}\r\n{0}{1}", event player.menu[Event Player.menusel][Global.index + 1] == 0 ? Custom String("")
+				: (Event Player.menuitemsel == Global.index ? Custom String("@ ") : Custom String("O ")),
+				event player.menu[Event Player.menusel][Global.index], Event Player.menutxt);
+		End;
+		If(Event Player.contiarg[0]);
+			Call Subroutine(contiswitch);
+		End;
+	}
+}
