@@ -8,7 +8,8 @@ subflags:
 
 settings {
 	main {
-		Description: "Author: DZeratulX#3306 Press interact button to start. 互动键开始游玩。"
+		Description: "Author: DZeratulX#3306 Press interact button to start.
+    互动键开始游玩。\r\nRepo: http://github.com/DeltaZXAdvent/gmcow.git"
 		Mode Name: "Geocentric Music Club"
 	}
 	lobby {
