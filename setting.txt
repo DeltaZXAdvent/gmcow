@@ -1,0 +1,64 @@
+settings
+{
+	lobby
+	{
+		Allow Players Who Are In Queue: Yes
+		Max Team 1 Players: 11
+		Max Team 2 Players: 0
+		Return To Lobby: Never
+		Use Experimental Update If Available: Yes
+	}
+
+	modes
+	{
+		Control
+		{
+			enabled maps
+			{
+			}
+		}
+
+		Escort
+		{
+			enabled maps
+			{
+				Dorado 972777519512068153
+			}
+		}
+
+		Flashpoint
+		{
+			enabled maps
+			{
+			}
+		}
+
+		Hybrid
+		{
+			enabled maps
+			{
+			}
+		}
+
+		Push
+		{
+			enabled maps
+			{
+			}
+		}
+
+		General
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+		}
+	}
+
+	heroes
+	{
+		General
+		{
+			Ability Cooldown Time: 0%
+		}
+	}
+}

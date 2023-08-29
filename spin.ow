@@ -1,0 +1,83 @@
+comments {
+  NAME
+  spin
+  DESCRIPTION
+  Spinning
+}
+
+dependencies {
+  base
+  stat
+  persp
+}
+
+variables global {
+}
+
+variables player {
+  spintype
+  spinrate
+  spinangle
+  spinanglebase
+}
+
+subroutines {
+  spin
+}
+
+enum ruleflags {
+}
+
+enum SPIN {
+  SPIN_NONE
+  SPIN_HORI
+  SPIN_VERT
+}
+
+rule("spin init player") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.spinrate = 360;
+  }
+}
+
+rule("sub spin") {
+  event { subroutine; spin; }
+  actions {
+    "temporarily set"
+    event player.spintype = global.argv[0];
+    if(event player.spintype == SPIN_NONE);
+      stop chasing player variable(event player, spinangle);
+      stop facing(event player);
+      global.argv[0] = PERSP_DEFAULT;
+      call subroutine(persp);
+    else if(event player.spintype == SPIN_HORI);
+      event player.spinanglebase = vertical facing angle of(event player);
+      event player.spinangle = horizontal facing angle of(event player);
+      chase player variable at rate(event player, spinangle, event player.spinangle + 360, event player.spinrate, destination and rate);
+      start facing(event player, vector(cosine from degrees(event player.spinanglebase) * sine from degrees(event player.spinangle),
+        0 - sine from degrees(event player.spinanglebase), cosine from degrees(event player.spinanglebase) * cosine from degrees(
+        event player.spinangle)), event player.spinrate, to world, direction and turn rate);
+      if(event player.persp != PERSP_FIXED);
+        event player.eyelookat = array(ray cast hit position(eye position(event player), eye position(event player)
+          - 6 * event player.stat[STAT_SCALE] * facing direction of(event player), null, null, false), eye position(event player));
+        global.argv[0] = PERSP_FIXED;
+        call subroutine(persp);
+      end;
+    else if(event player.spintype == SPIN_VERT);
+      event player.spinanglebase = horizontal facing angle of(event player) + 90;
+      event player.spinangle = vertical facing angle of(event player);
+      chase player variable at rate(event player, spinangle, event player.spinangle + 360, event player.spinrate, destination and rate);
+      start facing(event player, vector(cosine from degrees(event player.spinangle) * sine from degrees(event player.spinanglebase),
+        0 - sine from degrees(event player.spinangle), cosine from degrees(event player.spinangle) * cosine from degrees(
+        event player.spinanglebase)), 10000, to world, direction and turn rate);
+      if(event player.stat[2] != PERSP_FIXED);
+        event player.eyelookat = array(ray cast hit position(eye position(event player), eye position(event player)
+          - 6 * facing direction of(event player), null, null, false), eye position(event player));
+        global.argv[0] = PERSP_FIXED;
+        call subroutine(persp);
+      end;
+    end;
+  }
+}
+

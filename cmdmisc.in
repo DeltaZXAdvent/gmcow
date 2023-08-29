@@ -1,0 +1,279 @@
+"_CMD_HACKED"
+if(has status(event player, hacked));
+  clear status(event player, hacked);
+else;
+  set status(event player, null, hacked, 9999);
+end;
+abort;
+"_CMD_BURNING"
+if(has status(event player, burning));
+  clear status(event player, burning);
+else;
+  set status(event player, null, burning, 9999);
+end;
+abort;
+"_CMD_KNOCKED_DOWN"
+event player.stat[STAT_KNOCKED_DOWN] = !event player.stat[STAT_KNOCKED_DOWN];
+if(event player.stat[STAT_KNOCKED_DOWN]);
+  set status(event player, null, knocked down, 9999);
+else;
+  clear status(event player, knocked down);
+end;
+abort;
+"_CMD_ASLEEP"
+event player.stat[STAT_ASLEEP] = !event player.stat[STAT_ASLEEP];
+if(event player.stat[STAT_ASLEEP]);
+  set status(event player, null, asleep, 9999);
+else;
+  clear status(event player, asleep);
+end;
+abort;
+"_CMD_FROZEN"
+if(has status(event player, frozen));
+  clear status(event player, frozen);
+else;
+  set status(event player, null, frozen, 9999);
+end;
+abort;
+"_CMD_UNKILLABLE"
+if(has status(event player, unkillable));
+  clear status(event player, unkillable);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'unkillable' cleared") : (event player.lang == LANG_ZN ? custom string("状态'无法杀死' 已清除") : custom string("?")));
+else;
+  set status(event player, null, unkillable, 9999);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'unkillable' cleared") : (event player.lang == LANG_ZN ? custom string("状态'无法杀死' 已设置") : custom string("?")));
+end;
+abort;
+"_CMD_INVINCIBLE"
+if(has status(event player, invincible));
+  clear status(event player, invincible);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'invincible' cleared") : (event player.lang == LANG_ZN ? custom string("状态'无敌' 已清除") : custom string("?")));
+else;
+  set status(event player, null, invincible, 9999);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'invincible' set") : (event player.lang == LANG_ZN ? custom string("状态'无敌' 已设置") : custom string("?")));
+end;
+abort;
+"_CMD_PHASED_OUT"
+if(has status(event player, phased out));
+  clear status(event player, phased out);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'phased out' cleared") : (event player.lang == LANG_ZN ? custom string("状态'相移' 已清除") : custom string("?")));
+else;
+  set status(event player, null, phased out, 9999);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'phased out' set") : (event player.lang == LANG_ZN ? custom string("状态'相移' 已设置") : custom string("?")));
+end;
+abort;
+"_CMD_ROOTED"
+if(has status(event player, rooted));
+  clear status(event player, rooted);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'rooted' cleared") : (event player.lang == LANG_ZN ? custom string("状态'定身' 已清除") : custom string("?")));
+else;
+  set status(event player, null, rooted, 9999);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'rooted' set") : (event player.lang == LANG_ZN ? custom string("状态'定身' 已设置") : custom string("?")));
+end;
+abort;
+"_CMD_STUNNED"
+if(has status(event player, stunned));
+  clear status(event player, stunned);
+else;
+  set status(event player, null, stunned, 9999);
+end;
+abort;
+"_CMD_INVISIBLE"
+event player.stat[STAT_INVISIBLE] = !event player.stat[STAT_INVISIBLE];
+if(event player.stat[STAT_INVISIBLE]);
+  set invisible(event player, all);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'invisible' set") : (event player.lang == LANG_ZN ? custom string("状态'隐身' 已设置") : custom string("?")));
+else;
+  set invisible(event player, none);
+  small message(event player, event player.lang == LANG_EN ? custom string("status 'invisible' cleared") : (event player.lang == LANG_ZN ? custom string("状态'隐身' 已清除") : custom string("?")));
+end;
+abort;
+"_CMD_COLLI_PLAYER"
+event player.stat[STAT_COLLI_PLAYER] = !event player.stat[STAT_COLLI_PLAYER];
+if (event player.stat[STAT_COLLI_PLAYER]);
+  enable movement collision with players(event player);
+  small message(event player, event player.lang == LANG_EN ? custom string("collision with players enabled") : (event player.lang == LANG_ZN ? custom string("'玩家碰撞'已打开") : custom string("?")));  
+else;
+    small message(event player, event player.lang == LANG_EN ? custom string("collision with players disabled") : (event player.lang == LANG_ZN ? custom string("'玩家碰撞' 已关闭") : custom string("?")));
+  disable movement collision with players(event player);
+abort;
+
+"_CMD_PERSP_DEFAULT"
+"_CMD_PERSP_SECOND"
+"_CMD_PERSP_THIRD"
+"_CMD_PERSP_FIXED"
+global.argv[0] += eval(PERSP_DEFAULT - CMD_PERSP_DEFAULT + CMDG_MISC * 1000);
+call subroutine(persp);
+abort;
+"_CMD_CAMERA"
+call subroutine(camera);
+abort;
+
+"_CMD_SCALE_LARGER"
+event player.stat[STAT_SCALE] *= (square root(5) + 1) / 2;
+start scaling player(event player, event player.stat[STAT_SCALE], false);
+set move speed(event player, 100 * event player.stat[STAT_SCALE]);
+set jump vertical speed(event player, 100 * square root(event player.stat[STAT_SCALE]));
+abort;
+"_CMD_SCALE_SMALLER"
+event player.stat[STAT_SCALE] *= (square root(5) - 1) / 2;
+start scaling player(event player, event player.stat[STAT_SCALE], false);
+set move speed(event player, 100 * event player.stat[STAT_SCALE]);
+set jump vertical speed(event player, 100 * square root(event player.stat[STAT_SCALE]));
+abort;
+"_CMD_SCALE_STOP"
+event player.stat[STAT_SCALE] = 1;
+stop scaling player(event player);
+set move speed(event player, 100 * event player.stat[STAT_SCALE]);
+set jump vertical speed(event player, 100 * square root(event player.stat[STAT_SCALE]));
+abort;
+"_CMD_PITCH_HIGHER"
+event player.stat[STAT_PITCH] *= (square root(5) + 1) / 2;
+start modifying hero voice lines(event player, event player.stat[STAT_PITCH], false);
+abort;
+"_CMD_PITCH_LOWER"
+event player.stat[STAT_PITCH] *= (square root(5) - 1) / 2;
+start modifying hero voice lines(event player, event player.stat[STAT_PITCH], false);
+abort;
+"_CMD_PITCH_STOP"
+event player.stat[STAT_PITCH] = 1;
+stop modifying hero voice lines(event player);
+abort;
+
+"_CMD_HUD"
+if(event player.stat[STAT_HUD]);
+  disable hero hud(event player);
+  event player.stat[STAT_HUD] = false;
+else;
+  enable hero hud(event player);
+  event player.stat[STAT_HUD] = true;
+end;
+abort;
+
+"_CMD_SPIN_HORI"
+global.argv[0] = event player.spintype == SPIN_HORI ? SPIN_NONE : SPIN_HORI;
+call subroutine(spin);
+abort;
+"_CMD_SPIN_VERT"
+global.argv[0] = event player.spintype == SPIN_VERT ? SPIN_NONE : SPIN_VERT;
+call subroutine(spin);
+abort;
+"_CMD_SPIN_SPEEDUP"
+event player.spinrate *= (square root(5) + 1) / 2;
+if(event player.spinrate > 360 * 8);
+  event player.spinrate = 360 * 8;
+end;
+abort;
+"_CMD_SPIN_SLOWDOWN"
+event player.spinrate *= (square root(5) - 1) / 2;
+if(event player.spinrate < 360 / 8);
+  event player.spinrate = 360 / 8;
+end;
+abort;
+
+"_CMD_PROJ_STAY"
+if(event player.stat[STAT_PROJ_SPEED] != 100);
+  event player.stat[STAT_PROJ_SPEED] = 100;
+  set projectile speed(event player, 100);
+  set projectile gravity(event player, 100);
+else;
+  event player.stat[STAT_PROJ_SPEED] = 0;
+  set projectile speed(event player, 0);
+  set projectile gravity(event player, 0);
+end;
+abort;
+"_CMD_PROJ_SPEEDUP"
+event player.stat[STAT_PROJ_SPEED] *= 2;
+if(event player.stat[STAT_PROJ_SPEED] > 800);
+  event player.stat[STAT_PROJ_SPEED] = 800;
+end;
+set projectile speed(event player, event player.stat[STAT_PROJ_SPEED]);
+abort;
+"_CMD_PROJ_SLOWDOWN"
+event player.stat[STAT_PROJ_SPEED] /= 2;
+if(event player.stat[STAT_PROJ_SPEED] < 1);
+  event player.stat[STAT_PROJ_SPEED] = 1;
+end;
+set projectile speed(event player, event player.stat[STAT_PROJ_SPEED]);
+abort;
+"_CMD_MASSFIRE"
+if(event player.ruleflags[RF_MASSFIRE]);
+  event player.ruleflags[RF_MASSFIRE] = false;
+else;
+  start rule(massfire, restart rule);
+end;
+abort;
+
+"_CMD_FLASH"
+play effect(all players(all teams), good explosion, color(sky blue), (position of(event player) + eye position(event player)) / 2, 1);
+global.argv[0] = ray cast hit position(eye position(event player), eye position(event player) + 10 * facing direction of(event player), null, null, false) - eye position(event player) + position of(event player);
+if(distance between(global.argv[0], position of(event player)) < 7);
+  teleport(event player, global.argv[0] + 3 * direction towards(position of(event player), global.argv[0]));
+else;
+  teleport(event player, position of(event player) + 10 * facing direction of(event player));
+end;
+apply impulse(event player, -1 * velocity of(event player), speed of(event player), to world, incorporate contrary motion);
+play effect(all players(all teams), good explosion, color(sky blue), (position of(event player) + eye position(event player)) / 2, 1);
+play effect(all players(all teams), debuff impact sound, color(white), position of(event player), 100);
+abort;
+
+"_CMD_CHANGE"
+start rule(changehero, restart rule);
+abort;
+
+"_CMD_CANCEL"
+cancel primary action(event player);
+abort;
+"_CMD_UTTER"
+set status(event player, null, hacked, 0.016);
+abort;
+
+"_CMD_RESPAWN_POINT"
+event player.resstat = array(position of(event player), facing direction of(event player));
+play effect(event player, ring explosion sound, color(white), event player, 100);
+abort;
+"_CMD_RESPAWN_POINT_ALL"
+global.resstat = array(position of(event player), facing direction of(event player));
+filtered array(all players(all teams), !is dummy bot(current array element)).resstat = global.resstat;
+play effect(all players(all teams), ring explosion sound, color(white), event player, 100);
+abort;
+
+"_CMD_SLOWMOTION"
+if(global.slowmotion == 100);
+  global.slowmotion = 10;
+  set slow motion(10);
+else;
+  global.slowmotion = 100;
+  set slow motion(100);
+end;
+abort;
+"_CMD_SLOWMOTION_SLOWDOWN"
+global.slowmotion *= (square root(5) - 1) / 2;
+if(global.slowmotion < 10);
+  global.slowmotion = 10;
+end;
+set slow motion(global.slowmotion);
+abort;
+"_CMD_SLOWMOTION_SPEEDUP"
+global.slowmotion *= (square root(5) + 1) / 2;
+if(global.slowmotion > 100);
+  global.slowmotion = 100;
+end;
+set slow motion(global.slowmotion);
+abort;
+
+"_CMD_LANG_EN"
+"_CMD_LANG_ZN"
+event player.lang = global.argv[0] + eval(CMDG_MISC * 1000 - CMD_LANG_EN);
+global.argv[0] = eval(CMDG_JUMP * 1000 + MN_HOME);
+call subroutine(menucmd);
+abort;
+
+"_CMD_OPERATOR"
+if (event player.authority == 0);
+  small message(event player, event player.lang == LANG_EN ? custom string("No authority") : event player.lang == LANG_ZN ? custom string("没有权限") : custom string("?"));
+  abort;
+end;
+global.argv[0] = eval(CMDG_JUMP * 1000 + MN_OPERATOR);
+call subroutine(menucmd);
+abort;

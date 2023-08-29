@@ -1,0 +1,70 @@
+comments {
+  name: misc
+  potential bugs:
+  - mutiple string comments
+  - depends on menu.cfg.ow & menu.cfg.ow depends on this (because of MN_OPERATOR)
+  - 3-element operator priority
+}
+
+dependencies {
+  base
+  stat
+  ease
+  persp
+  spin
+}
+
+subroutines {
+  cmdmisc
+  changehero
+  massfire
+}
+
+variables global {
+  slowmotion
+}
+variables player {
+  posfac
+}
+
+enum ruleflags {
+  RF_MASSFIRE
+}
+
+enum CMD_GROUP {
+  CMDG_MISC
+}
+
+rule("sub changehero") {
+	event { subroutine; changehero;}
+	actions {
+		event player.posfac = array(position of(event player), facing direction of(event player));
+		while(true);
+			set player allowed heroes(event player, remove from array(all heroes, hero of(event player)));
+			set player allowed heroes(event player, all heroes);
+			wait until(array contains(all heroes, hero of(event player)), 8);
+			if(array contains(all heroes, hero of(event player)));
+				break;
+			end;
+		end;
+		teleport(event player, event player.posfac[0]);
+		wait(0.016, ignore condition);
+		set facing(event player, event player.posfac[1], to world);
+	}
+}
+
+rule("sub massfire") {
+  event { subroutine; massfire; }
+  actions {
+		event player.ruleflags[RF_MASSFIRE] = true;
+		while(true);
+			wait until(is firing primary(event player) || is firing secondary(event player) || !event player.ruleflags[RF_MASSFIRE], 99999);
+			if(!event player.ruleflags[RF_MASSFIRE]);
+				break;
+			end;
+			set projectile speed(event player, event player.stat[STAT_PROJ_SPEED]);
+			wait(0.016, ignore condition);
+		end;
+  }
+}
+

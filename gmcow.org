@@ -1,0 +1,107 @@
+* TODO Tasks
+- update README
+- menu.ow
+  - shortcuts
+- ease.ow:
+  - no nameplates
+- spin.ow
+  - no spin camera blink (find reason)
+- misc.ow
+  - disable knocked off
+  - pitch up/down ratio
+- palette & outline
+- draw
+- compliation
+  - add rule positioning function
+
+
+* For those who want to understand this software source:
+*This README is out of date*
+Used tools:
+- Essential Linux CLI tools
+  - make, awk, m4
+- Linux on Window tool: Cygwin
+- Other development and file editing & searching tools e.g. shell, command find, grep, ...
+  These are useful for debugging & searching code which you may have forgotten
+
+
+* Overwatch workshop code structure (my coding standard)
+
+A workshop setting consists of some modules.
+A module consists of:
+
+-   Dependencies & position relative to rules of depended modules
+-   Initialization of variables (global & player rules with no condition)
+    Contains callback subroutines list (for interacting with submodules)
+-   Rules which are always running (normal rules)
+-   Rules whose running can be toggled by a flag (toggle rules, involving "base" module player variable "ruleflags")
+-   Subroutines which can take arguments (use one global variable "argv" to pass arguments)
+
+Someone can use this structure to write a higher-level compiler / compilation layer.
+
+I proposed a compilation framework and will implement it. But this model only compiles the whole project together and does not provide the capability to compile single objects; compiling seperately is difficult because an additional object format (with located unresolved external symbols) is needed.
+Implemented modules will consisit of:
+- Name & Version
+- Requirements / Description & Tests
+- Dependencies (Sometimes relative positions are important because some rule needs to react at the same frame)
+- Programming structures
+  - global/player variables
+  - subroutines
+  - rules (w/ or w/o rule flags controlling running or stopped states)
+  - enumerators PS: some modules need to append to other modules' enumerators (does nowadays programming languages provide these extendible structures?)
+  - comments signifying:
+    - inline subroutines
+    - configurable actions / values
+This framework may actually emphasize extendibility but not modular structures because after combiling these modules you may need to add the glues cooperating them.
+
+* Programming practice and needed additional utilities
+
+-   A global variable used to hold temporary and argument varaibles "base.global.argv"
+-   A player variable used to hold player rule running flags "base.player.ruleflags"
+-   Usually variables, toggle rules, subroutines should begin with a module name acronym
+-   Macro definition syntax & integer allocation utility (to organize the variables, e.g. GNU m4)
+
+*Notes*
+
+-   We can regard the two necessary variables as ones of the base module.
+-   Module position matters
+
+
+* Ideas
+A integer-subroutine map is needed. Using if-else statements is inefficient. Consider using skip action with subroutine (inline) location map.
+Location generation can be programmed by awk.
+
+* Module designs
+
+
+** base
+
+*VARIABLES*
+global:
+  argv: used to represent argument or temporary registers
+  index: loop index; maybe find another way when there's nested loop
+
+player: ruleflags
+
+
+## menu
+
+*FEATURES*
+  multi-language: dynamic menu vs <span class="underline">multi-menu</span>
+*VARIABLES*
+global.menu: menus of different languages
+player.
+    menu: { { (string, code) } }
+	    3 code categories: dummy, command, menu branching (need allocating integers)
+	menuopen menuable menuauth menutxt menuid menusel menuitemsel menucmd
+*SUBROUTINES*
+menuctln menuctlp menuctlsel menuupdate
+
+
+** draw
+
+global: drawentities
+player: drawid drawstart drawtype drawvisible
+subrtn: draw drawerase
+
+

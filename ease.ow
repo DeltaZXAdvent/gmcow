@@ -1,0 +1,67 @@
+comments {
+  NAME
+  ease
+  DESCRIPTION
+  Basic game logic modified.
+}
+
+variables player {
+  resstat
+}
+variables global {
+  resstat
+}
+
+rule("ease init global") {
+  event { ongoing - global; }
+  actions {
+    disable built-in game mode completion;
+    disable inspector recording;
+    global.resstat = array(0, 0);
+    while(!is game in progress);
+      set match time(0);
+      wait(0.016, ignore condition);
+    end;
+  }
+}
+rule("ease init player") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.resstat = global.resstat;
+  }
+}
+
+rule("ease spawn") {
+  event { ongoing - each player; all; all; }
+  actions {
+    wait until(array contains(all heroes, hero of(event player)), 99999);
+    if(event player.resstat[0] != 0);
+      teleport(event player, event player.resstat[0]);
+    end;
+    if(event player.resstat[1] != 0);
+      set facing(event player, event player.resstat[1], to world);
+    end;
+    while(true);
+      wait until(is dead(event player), 99999);
+      wait until(is alive(event player), 99999);
+      if(event player.resstat[0] != 0);
+        teleport(event player, event player.resstat[0]);
+      end;
+      if(event player.resstat[1] != 0);
+        set facing(event player, event player.resstat[1], to world);
+      end;
+    end;
+  }
+}
+
+rule("ease infinite ult") {
+  event { ongoing - each player; all; all; }
+  actions {
+    wait until(array contains(all heroes, hero of(event player)), 99999);
+  while (true);
+    wait until(ultimate charge percent(event player) < 100, 99999);
+    set ultimate charge(event player, 100);
+    wait(0.016, ignore condition);
+  end;
+  }
+}

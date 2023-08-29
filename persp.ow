@@ -1,0 +1,154 @@
+comments {
+  NAME
+  persp
+  DESCRIPTION
+  Mutiple perspectives
+}
+
+dependencies {
+  base
+  stat
+}
+
+enum PERSP {
+  PERSP_DEFAULT
+  PERSP_SECOND
+  PERSP_THIRD
+  PERSP_FIXED_HERE
+  PERSP_FIXED
+  PERSP_FIXED_LOCK
+}
+comments {
+  PERSP_FIXED_* are only used as function arguments
+}
+
+variables global {
+  camera
+}
+
+variables player {
+  persp
+  eyelookat
+  camlock
+}
+
+subroutines {
+  persp
+  perspemote
+  camera
+}
+
+enum ruleflags {
+  RF_PERSP_EMOTE
+}
+
+rule("persp init global") {
+  event { ongoing - global; }
+  actions {
+    global.camera = empty array;
+  }
+}
+
+comments {
+  use:
+    global.argv[0] = PERSP_*;
+}
+rule("sub persp") {
+  event { subroutine; persp; }
+  actions {
+    if(event player.camlock);
+      abort;
+    end;
+    "temporarily set"
+    event player.persp = global.argv[0];
+    "temporarily set"
+    event player.ruleflags[RF_PERSP_EMOTE] = false;
+    if(event player.persp == PERSP_DEFAULT);
+      stop camera(event player);
+    else if(event player.persp == PERSP_SECOND);
+      event player.ruleflags[RF_PERSP_EMOTE] = true;
+      start rule(perspemote, restart rule);
+      start camera(event player,
+        update every frame(ray cast hit position(
+          eye position(event player),
+          eye position(event player) + facing direction of(event player) * 3 * event player.stat[STAT_SCALE],
+          null, null, false
+        )),
+        update every frame(eye position(event player)), 0);
+    else if(event player.persp == PERSP_THIRD);
+      event player.ruleflags[RF_PERSP_EMOTE] = true;
+      start rule(perspemote, restart rule);
+      start camera(event player,
+        update every frame(ray cast hit position(
+          eye position(event player),
+          eye position(event player) + facing direction of(event player) * -3 * event player.stat[STAT_SCALE],
+          null, null, false
+        )),
+        update every frame(eye position(event player)), 0);
+    else if(event player.persp == PERSP_FIXED);
+      start camera(event player, event player.eyelookat[0], event player.eyelookat[1], 0);
+    else if(event player.persp == PERSP_FIXED_HERE);
+      event player.persp = PERSP_FIXED;
+      event player.eyelookat = array(eye position(event player), eye position(event player) + facing direction of(event player));
+      start camera(event player, event player.eyelookat[0], event player.eyelookat[1], 0);
+    else if(event player.persp == PERSP_FIXED_LOCK);
+      event player.persp = PERSP_FIXED;
+      event player.camlock = true;
+      start camera(event player, event player.eyelookat[0], event player.eyelookat[1], 0);
+    end;
+  }
+}
+
+rule("sub perspemote") {
+  event { subroutine; perspemote; }
+  actions {
+    wait until(!event player.ruleflags[RF_PERSP_EMOTE] || is communicating any emote(event player), 99999);
+    if(!event player.ruleflags[RF_PERSP_EMOTE]);
+      abort;
+    end;
+    stop camera(event player);
+    wait until(!event player.ruleflags[RF_PERSP_EMOTE] || !is communicating any emote(event player), 99999);
+    if(!event player.ruleflags[RF_PERSP_EMOTE]);
+      abort;
+    end;
+    if(event player.persp == PERSP_SECOND);
+      start camera(event player,
+        update every frame(ray cast hit position(
+          eye position(event player),
+          eye position(event player) + facing direction of(event player) * 3 * event player.stat[STAT_SCALE],
+          null, null, false
+        )),
+        update every frame(eye position(event player)), 0);
+    else if(event player.persp == PERSP_SECOND);
+      start camera(event player,
+        update every frame(ray cast hit position(
+          eye position(event player),
+          eye position(event player) + facing direction of(event player) * -3 * event player.stat[STAT_SCALE],
+          null, null, false
+        )),
+        update every frame(eye position(event player)), 0);
+    end;
+    loop;
+  }
+}
+
+comments {
+  Set the camera of all players to the one of the event player.
+}
+rule("sub camera") {
+  event { subroutine; camera; }
+  actions {
+    if(global.camera == empty array);
+      all players(all teams).persp = PERSP_FIXED;
+      all players(all teams).ruleflags[RF_PERSP_EMOTE] = false;
+      global.camera = array(eye position(event player), eye position(event player) + facing direction of(event player));
+      start camera(all players(all teams), evaluate once(global.camera[0]), evaluate once(global.camera[1]), 0);
+      all players(all teams).camlock = true;
+    else;
+      all players(all teams).persp = PERSP_DEFAULT;
+      stop camera(all players(all teams));
+      all players(all teams).camlock = false;
+      global.camera = empty array;
+    end;
+  }
+}

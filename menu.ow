@@ -1,0 +1,293 @@
+comments {
+  Name: menu
+  Description: in-game console-like menu
+  Extensions: misc
+  Potential bugs:
+    - Does abort action in subroutine aborts the calling routine?
+}
+
+dependecies {
+  base
+}
+
+variables global {
+  menu
+  menuable
+}
+
+variables player {
+  menuauth
+  menutxt
+  menuid
+  menusel
+  menuitemsel
+  menusccmds
+  menusccur
+}
+
+subroutines {
+  menuctln
+  menuctlp
+  menuctlsel
+  menuupdate
+  menucmd
+  menuscset
+  menusc
+}
+
+enum ruleflags {
+  RF_MENU
+}
+
+enum CMD_GROUP {
+  CMDG_NULL
+  CMDG_JUMP
+}
+
+enum SC {
+  SC_RELOAD
+  SC_PRIMARY
+  SC_SECONDARY
+  SC_NEEDHEALING
+}
+
+rule("menu init player") {
+  event {ongoing - each player; all; all;}
+  actions {
+    "shortcuts"
+    event player.menusccur = SC_RELOAD;
+    event player.menusccmds[SC_RELOAD] = CMD_FLASH;
+    event player.menusccmds[SC_PRIMARY] = CMDG_NULL;
+    event player.menusccmds[SC_SECONDARY] = CMDG_NULL;
+    event player.menusccmds[SC_NEEDHEALING] = CMD_CHANGE;
+  }
+}
+
+rule("menu loop") {
+  event {ongoing - each player; all; all;}
+  actions {
+    while(true);
+      "open menu"
+      event player.ruleflags[RF_MENU] = true;
+      global.argv[0] = false;
+      call subroutine(modebtn);
+      start rule(menuctln, restart rule);
+      start rule(menuctlp, restart rule);
+      start rule(menuctlsel, restart rule);
+      start rule(menuscset, restart rule);
+      create hud text(event player, null, null, event player.menutxt, top, 1, color(white), color(white),
+        color(white), visible to and string, default visibility);
+      event player.menuid[0] = last text id;
+      create hud text(event player, null, null,
+        event player.lang == LANG_EN ? custom string("open/close menu: {0}\r\n{1}", input binding string(button(interact)), custom string("up/down: {0}/{1}\r\n{2}", input binding string(button(primary fire)), input binding string(button(secondary fire)), custom string("select: {0}\r\nset/use shortcuts:{1}", input binding string(button(melee)), input binding string(button(reload))))) :
+          (event player.lang == LANG_ZN ? custom string("开关菜单：{0}\r\n{1}", input binding string(button(interact)), custom string("上下: {0}/{1}\r\n{2}", input binding string(button(primary fire)), input binding string(button(secondary fire)), custom string("选择: {0}\r\n设置/使用快捷键:{1}", input binding string(button(melee)), input binding string(button(reload))))) :
+  	custom string("")),
+        right, 1, color(white), color(white),
+        color(white), visible to and string, default visibility);
+      event player.menuid[1] = last text id;
+      start rule(menuupdate, do nothing);
+  
+      wait until(!is button held(event player, button(interact)) || !global.menuable == 0, 99999);
+      wait until(is button held(event player, button(interact)) || !global.menuable == 0, 99999);
+
+      "close menu"
+      event player.ruleflags[RF_MENU] = false;
+      global.argv[0] = true;
+      call subroutine(modebtn);
+      start rule(menusc, restart rule);
+      destroy hud text(event player.menuid[0]);
+      destroy hud text(event player.menuid[1]);
+
+      wait until(!is button held(event player, button(interact)), 99999);
+      wait until(is button held(event player, button(interact)) && global.menuable == 0, 99999);
+    end;
+  }
+}
+
+rule("rule menuctln") {
+  event { subroutine; menuctln; }
+  actions {
+    wait until(!is button held(event player, button(primary fire)), 99999);
+    while(true);
+      wait until(is button held(event player, button(primary fire)), 99999);
+      if(!event player.ruleflags[RF_MENU]);
+        abort;
+      end;
+      "[inline] increment"
+      while(true);
+        event player.menuitemsel += eval(CT_LANG + 1);
+        if(event player.menuitemsel >= count of(global.menu[event player.menusel]));
+          event player.menuitemsel = 0;
+        end;
+        if(global.menu[event player.menusel][event player.menuitemsel] != 0);
+          break;
+        end;
+      "[inline end]"
+      end;
+      start rule(menuupdate, do nothing);
+      "[config] interval: 0.320"
+      wait until(!is button held(event player, button(primary fire)), 0.320);
+      if(is button held(event player, button(primary fire)));
+        while(true);
+          "[inline] increment"
+          while(true);
+            event player.menuitemsel += eval(CT_LANG + 1);
+            if(event player.menuitemsel >= count of(global.menu[event player.menusel]));
+              event player.menuitemsel = 0;
+            end;
+            if(global.menu[event player.menusel][event player.menuitemsel] != 0);
+              break;
+            end;
+          "[inline end]"
+          end;
+          start rule(menuupdate, do nothing);
+          wait until(!is button held(event player, button(primary fire)), 0.064);
+          if(!is button held(event player, button(primary fire)));
+            loop;
+          end;
+        end;
+      end;
+    end;
+  }
+}
+
+rule("rule menuctlp") {
+  event {subroutine; menuctlp;}
+  actions {
+    wait until(!is button held(event player, button(secondary fire)), 99999);
+    while(true);
+      wait until(is button held(event player, button(secondary fire)), 99999);
+      if(!event player.ruleflags[RF_MENU]);
+        abort;
+      end;
+      "[inline] decrement"
+      while(true);
+        event player.menuitemsel -= eval(CT_LANG + 1);
+        if(event player.menuitemsel < 0);
+          event player.menuitemsel = count of(global.menu[event player.menusel]) - eval(CT_LANG + 1);
+        end;
+        if(global.menu[event player.menusel][event player.menuitemsel] != 0);
+          break;
+        end;
+      "[inline end]"
+      end;
+      start rule(menuupdate, do nothing);
+      wait until(!is button held(event player, button(secondary fire)), 0.320);
+      if(is button held(event player, button(secondary fire)));
+        while(true);
+          "[inline] decrement"
+          while(true);
+            event player.menuitemsel -= eval(CT_LANG + 1);
+            if(event player.menuitemsel < 0);
+              event player.menuitemsel = count of(global.menu[event player.menusel]) - eval(CT_LANG + 1);
+            end;
+            if(global.menu[event player.menusel][event player.menuitemsel] != 0);
+              break;
+            end;
+          "[inline end]"
+          end;
+          start rule(menuupdate, do nothing);
+          wait until(!is button held(event player, button(secondary fire)), 0.064);
+          if(!is button held(event player, button(secondary fire)));
+            loop;
+          end;
+        end;
+      end;
+    end;
+  }
+}
+
+rule("rule menuctlsel") {
+  event {subroutine; menuctlsel;}
+  actions {
+    wait until(is button held(event player, button(melee)), 99999);
+    if(!event player.ruleflags[RF_MENU]);
+      abort;
+    end;
+    global.argv[0] = global.menu[event player.menusel][event player.menuitemsel];
+    "-1 is reserved for passing string arguments"
+    if(global.argv[0] == -1);
+      global.argv[0] = global.menu[event player.menusel][event player.menuitemsel + 1 + event player.lang];
+    end;
+    call subroutine(menucmd);
+    wait until(!is button held(event player, button(melee)), 99999);
+    loop;
+  }
+}
+
+rule("rule menuscset") {
+  event {subroutine; menuscset;}
+  actions {
+    wait until(is button held(event player, button(reload)), 99999);
+    if(!event player.ruleflags[RF_MENU]);
+      abort;
+    end;
+    event player.menusccmds[event player.menusccur] = global.menu[event player.menusel][event player.menuitemsel];
+    small message(event player, event player.lang == LANG_EN ? custom string("Shortcut set!") : (
+      event player.lang == LANG_ZN ? custom string("快捷键已设置！") : custom string("")));
+    wait until(!is button held(event player, button(reload)), 99999);
+    loop;
+  }
+}
+
+rule("rule menusc") {
+  event {subroutine; menusc;}
+  actions {
+    "shortcut reload"
+    wait until(is button held(event player, button(reload)), 99999);
+    if(event player.ruleflags[RF_MENU]);
+      abort;
+    end;
+    global.argv[0] = event player.menusccmds[event player.menusccur];
+    call subroutine(menucmd);
+    wait until(!is button held(event player, button(reload)), 99999);
+    loop;
+  }
+}
+
+rule("sub menucmd") {
+  event { subroutine; menucmd; }
+  actions {
+    global.argv[1] = round to integer(global.argv[0] / 1000, down);
+    global.argv[0] = global.argv[0] % 1000;
+    if (global.argv[1] == CMDG_NULL);
+      abort;
+    else if (global.argv[1] == CMDG_JUMP);
+      "set menusel"
+      event player.menusel = global.argv[0];
+      "set menuitemsel to the first valid item"
+      if(event player.menuitemsel >= 0);
+        event player.menuitemsel = -eval(CT_LANG + 1);
+      "control menuitemsel"
+      else;
+        event player.menuitemsel = -eval(CT_LANG + 1) - event player.menuitemsel;
+      end;
+      while(true);
+        event player.menuitemsel += eval(CT_LANG + 1);
+        if(event player.menuitemsel >= count of(global.menu[event player.menusel]));
+          event player.menuitemsel = 0;
+        end;
+        if(global.menu[event player.menusel][event player.menuitemsel] != 0);
+          break;
+        end;
+        start rule(menuupdate, do nothing);
+      end;
+    "[config]"
+    else if(global.argv[1] == CMDG_MISC);
+      call subroutine(cmdmisc);
+    end;
+  }
+}
+
+rule("rule menuupdate") {
+  event { subroutine; menuupdate; }
+  actions {
+    event player.menutxt = custom string("{0}{1}", global.menu[event player.menusel][0] == 0 ? custom string("") : (
+      event player.menuitemsel == 0 ? custom string("@ ") : custom string("o ")), global.menu[event player.menusel][event player.lang + 1]);
+    for global variable(index, eval(CT_LANG + 1), count of(global.menu[event player.menusel]), eval(CT_LANG + 1));
+      event player.menutxt = custom string("{2}\r\n{0}{1}", global.menu[event player.menusel][global.index] == 0 ? custom string("")
+        : (event player.menuitemsel == global.index ? custom string("@ ") : custom string("o ")),
+        global.menu[event player.menusel][global.index + event player.lang + 1], event player.menutxt);
+    end;
+  }
+}

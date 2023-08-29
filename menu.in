@@ -1,0 +1,98 @@
+MN_HOME
+0  [home]  【主菜单】
+@MN_PERSP  perspective >  视角 >
+@MN_STATUS  status >  状态 >
+@MN_CUSTOMIZE  customize >  自定义 >
+CMD_FLASH  flash  闪现
+CMD_CHANGE  change hero  更换英雄
+@MN_SPIN  spin >  旋转 >
+@MN_PROJECTILE  projectile >  投射物 >
+CMD_UTTER  utter  叫喊
+CMD_CANCEL  cancel action  取消动作
+CMD_RESPAWN_POINT  set respawn point  设置重生点
+@MN_LANG  language >  语言 >
+@MN_ABOUT  about >  关于 >
+CMD_OPERATOR  operator >  管理员 >
+
+MN_PERSP
+0  [perspective]  【视角】
+CMD_PERSP_DEFAULT  default  默认视角
+CMD_PERSP_SECOND  second  第二人称
+CMD_PERSP_THIRD  third  第三人称
+CMD_PERSP_FIXED  fixed  固定视角
+@MN_HOME  home >  主菜单 >
+
+MN_STATUS
+0  [status]  【状态】
+CMD_HACKED  hacked  被入侵
+CMD_BURNING  burning  燃烧
+CMD_KNOCKED_DOWN  knocked down  击倒
+CMD_ASLEEP  asleep  沉睡
+CMD_FROZEN  frozen  冰冻
+CMD_UNKILLABLE  unkillable  无法杀死
+CMD_INVINCIBLE  invincible  无敌
+CMD_PHASED_OUT  phased out  相移
+0  (collision with players and projectiles disabled)  （关闭玩家和投射物碰撞）
+CMD_ROOTED  rooted  定身
+CMD_STUNNED  stunned  击晕
+CMD_INVISIBLE  invisible  隐身
+CMD_COLLI_PLAYER  toggle collision with players  玩家碰撞
+@MN_HOME  home >  主菜单 >
+
+MN_CUSTOMIZE
+0  [customize]  【自定义】
+CMD_SCALE_LARGER  scale larger  体型变大
+CMD_SCALE_SMALLER  scale smaller  体型变小
+CMD_SCALE_STOP  scale stop  恢复体型
+CMD_PITCH_HIGHER  pitch higher  音调变高
+CMD_PITCH_LOWER  pitch lower  音调变低
+CMD_PITCH_STOP  pitch recover  恢复音调
+@MN_HOME  home >  主菜单 >
+
+MN_SPIN
+0  [spin]  【旋转】
+CMD_SPIN_HORI  spin horizontally  水平旋转
+CMD_SPIN_VERT  spin vertically  垂直旋转
+CMD_SPIN_SPEEDUP  speedup  加速
+CMD_SPIN_SLOWDOWN  slowdown  减速
+@MN_HOME  home >  主菜单 >
+
+MN_PROJECTILE
+0  [projectile]  【投射物】
+CMD_PROJ_STAY  projectile stay  子弹静止
+CMD_PROJ_SPEEDUP  projectile speedup  加速
+CMD_PROJ_SLOWDOWN  projectile slowdown  减速
+CMD_MASSFIRE  mass fire  无限火力
+0  (limited to specific heroes)  （适用于特定英雄）
+@MN_HOME  home >  主菜单 >
+
+MN_LANG
+0  [language]  【语言】
+CMD_LANG_EN  english  english
+CMD_LANG_ZN  简体中文  简体中文
+@MN_HOME  home >  主菜单 >
+
+MN_ABOUT
+0  [about]  【关于】
+0  Geocentric Music Club (Overwatch Workshop)  地心乐社（守望先锋地图工坊）
+0  CODE: FYSG5  代码: FYSG5
+0  Repository: REPOSITORY  仓库: REPOSITORY
+0  version: VERSION  版本: VERSION
+0  group link (INVIT_CT uses):  群组链接（可使用次数: INVIT_CT）:
+0  INVITATION  INVITATION
+@MN_HOME  home >  主菜单 >
+
+MN_OPERATOR
+0  [operator]  【管理员】
+CMD_RESPAWN_POINT_ALL  set respawn point for all  设置全体重生点
+CMD_CAMERA  set camera for all  设置全体摄像头
+@MN_HOME  home >  主菜单 >
+
+MN_SLOWMOTION
+0  [slowmotion]  【慢动作】
+CMD_SLOWMOTION  slowmotion  慢动作
+CMD_SLOWMOTION_SLOWDOWN  slowmotion slowdown  减速
+CMD_SLOWMOTION_SPEEDUP  slowmotion speedup  加速
+CMD_HUD  hud toggle  开关HUD
+@MN_HOME  home >  主菜单 >
+

@@ -1,0 +1,70 @@
+comments {
+  Basic utilities:
+  - Constructs making it easy for programming
+  - Language support
+  - Authority support
+  - Some wrapped functions
+}
+variables global {
+  argv
+  index
+}
+
+variables player {
+  lang
+  ruleflags
+  modebtn
+  authority
+}
+comments {
+  modebtn: 0 for allowing buttons
+}
+
+subroutines {
+  modebtn
+}
+comments {
+  modebtn: manage button allowing
+    true for allow, false for disallow
+}
+
+enum LANG {
+  LANG_EN
+  LANG_ZN
+  CT_LANG
+}
+
+rule("base init") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.lang = LANG_ZN;
+    if (event player == host player);
+      event player.authority = 1;
+    else;
+      event player.authority = 0;
+    end;
+  }
+}
+
+rule("sub modebtn") {
+  event { subroutine; modebtn; }
+  actions {
+    if(global.argv[0]);
+      if(event player.modebtn == 1);
+        allow button(event player, button(primary fire));
+        allow button(event player, button(secondary fire));
+        allow button(event player, button(melee));
+        allow button(event player, button(reload));
+      end;
+      event player.modebtn -= 1;
+    else;
+      if(event player.modebtn == 0);
+        disallow button(event player, button(primary fire));
+        disallow button(event player, button(secondary fire));
+        disallow button(event player, button(melee));
+        disallow button(event player, button(reload));
+      end;
+      event player.modebtn += 1;
+    end;
+  }
+}
