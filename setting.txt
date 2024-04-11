@@ -3,54 +3,69 @@ settings
 	lobby
 	{
 		Allow Players Who Are In Queue: Yes
-		Max Team 1 Players: 11
-		Max Team 2 Players: 0
+		Match Voice Chat: Enabled
+		Max FFA Players: 11
 		Return To Lobby: Never
 		Use Experimental Update If Available: Yes
 	}
 
 	modes
 	{
-		Control
-		{
-			enabled maps
-			{
-			}
-		}
-
-		Escort
-		{
-			enabled maps
-			{
-				Dorado 972777519512068153
-			}
-		}
-
-		Flashpoint
-		{
-			enabled maps
-			{
-			}
-		}
-
-		Hybrid
-		{
-			enabled maps
-			{
-			}
-		}
-
-		Push
-		{
-			enabled maps
-			{
-			}
-		}
-
-		General
+		disabled Control
 		{
 			Game Mode Start: Immediately
 			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		Deathmatch
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Escort
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Flashpoint
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Hybrid
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Push
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Skirmish
+		{
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
+		}
+
+		disabled Team Deathmatch
+		{
+			Game Length In Minutes: 5
+			Game Mode Start: Immediately
+			Hero Limit: Off
+			Respawn Time Scalar: 0%
 		}
 	}
 
@@ -61,4 +76,11 @@ settings
 			Ability Cooldown Time: 0%
 		}
 	}
+
+	extensions
+	{
+		Play More Effects
+		Spawn More Dummy Bots
+	}
 }
+

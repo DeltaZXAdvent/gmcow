@@ -1,0 +1,100 @@
+comments {
+}
+
+variables global {
+ genji_parkour_points
+ genji_parkour_effects
+}
+variables player {
+  genji_parkour_toggle
+  genji_parkour_point
+}
+subroutines {
+ genji_test
+ genji_parkour
+ genji_parkour_internal
+}
+
+enum ruleflags {
+  RF_GENJI_PARKOUR
+  RF_GENJI_PARKOUR_INTERNAL
+}
+
+comments {
+  add this to reduce the number of tests
+}
+rule("parkour global init") {
+  event { ongoing - global; }
+  actions {
+    global.genji_parkour_points = array();
+    global.genji_parkour_effects = array();
+  }
+}
+rule("parkour player init") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.genji_parkour_toggle = true;
+  }
+}
+rule("rule genji_test") {
+  event { ongoing - each player; all; all; }
+  actions {
+    wait until(array contains(array(hero(genji), hero(hanzo), hero(kiriko)), hero of(event player)), 99999);
+    if (!event player.ruleflags[RF_GENJI_PARKOUR]);
+      start rule(genji_parkour, restart rule);
+    end;
+    wait until(!array contains(array(hero(genji), hero(hanzo), hero(kiriko)), hero of(event player)), 99999);
+    if (event player.ruleflags[RF_GENJI_PARKOUR]);
+      start rule(genji_parkour, restart rule);
+    end;
+    loop;
+  }
+}
+rule("rule genji_parkour_internal") {
+  event { subroutine; genji_parkour_internal; }
+  actions {
+    event player.ruleflags[RF_GENJI_PARKOUR_INTERNAL] = !event player.ruleflags[RF_GENJI_PARKOUR_INTERNAL];
+    if (!event player.ruleflags[RF_GENJI_PARKOUR_INTERNAL]);
+      abort;
+    end;
+    while (true);
+    wait until(is on ground(event player), 99999);
+    if (array contains(mapped array(global.genji_parkour_points,
+                                    distance between(position of(event player), current array element) < 1),
+                       true));
+      event player.genji_parkour_point = index of array value(mapped array(global.genji_parkour_points,
+                                                                           distance between(position of(event player), current array element) < 1),
+                                                              true);
+    else;
+      teleport(event player, global.genji_parkour_points[event player.genji_parkour_point]);
+      set status(event player, null, knocked down, 0.016);
+    end;
+    wait(0.016, ignore condition);
+    end;
+  }
+}
+
+rule("rule genji_parkour") {
+  event { subroutine; genji_parkour; }
+  actions {
+    event player.ruleflags[RF_GENJI_PARKOUR] = !event player.ruleflags[RF_GENJI_PARKOUR];
+    if (!(event player.ruleflags[RF_GENJI_PARKOUR] && event player.genji_parkour_toggle));
+      if (event player.ruleflags[RF_GENJI_PARKOUR_INTERNAL]);
+        start rule(genji_parkour_internal, restart rule);
+      end;
+      abort;
+    end;
+    while (true);
+    wait until(array contains(mapped array(global.genji_parkour_points,
+                                           distance between(position of(event player), current array element) < 1 && is on ground(event player)),
+                              true), 99999);
+    event player.genji_parkour_point = index of array value(mapped array(global.genji_parkour_points,
+                                                                         distance between(position of(event player), current array element) < 1 && is on ground(event player)),
+                                                            true);
+    small message(event player, custom string("跑酷开始！"));
+    start rule(genji_parkour_internal, restart rule);
+    wait until(count of(global.genji_parkour_points) == 0, 99999);
+    start rule(genji_parkour_internal, restart rule);
+    end;
+  }
+}

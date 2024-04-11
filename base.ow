@@ -8,24 +8,22 @@ comments {
 variables global {
   argv
   index
+  idnxt
 }
 
 variables player {
+  id
   lang
   ruleflags
-  modebtn
+  keymap
   authority
-}
-comments {
-  modebtn: 0 for allowing buttons
 }
 
 subroutines {
-  modebtn
+  keymap
 }
 comments {
-  modebtn: manage button allowing
-    true for allow, false for disallow
+  keymap: manage button allowing
 }
 
 enum LANG {
@@ -34,9 +32,20 @@ enum LANG {
   CT_LANG
 }
 
-rule("base init") {
+rule("base init global") {
+  event { ongoing - global; }
+  actions {
+    global.idnxt = 1;
+  }
+}
+
+rule("base init player") {
   event { ongoing - each player; all; all; }
   actions {
+    "id"
+    event player.id = global.idnxt;
+    global.idnxt += 1;
+    "language"
     event player.lang = LANG_ZN;
     if (event player == host player);
       event player.authority = 1;
@@ -46,25 +55,39 @@ rule("base init") {
   }
 }
 
-rule("sub modebtn") {
-  event { subroutine; modebtn; }
+enum KEYMAP {
+  KM_NORMAL
+  KM_MENU
+  KM_DRAW
+}
+
+rule("base init") {
+  event { ongoing - each player; all; all; }
   actions {
-    if(global.argv[0]);
-      if(event player.modebtn == 1);
-        allow button(event player, button(primary fire));
-        allow button(event player, button(secondary fire));
-        allow button(event player, button(melee));
-        allow button(event player, button(reload));
-      end;
-      event player.modebtn -= 1;
-    else;
-      if(event player.modebtn == 0);
-        disallow button(event player, button(primary fire));
-        disallow button(event player, button(secondary fire));
-        disallow button(event player, button(melee));
-        disallow button(event player, button(reload));
-      end;
-      event player.modebtn += 1;
+    event player.keymap[KM_NORMAL] = true;
+    event player.keymap[KM_MENU] = false;
+    event player.keymap[KM_DRAW] = false;
+  }
+}
+
+rule("sub keymap") {
+  event { subroutine; keymap; }
+  actions {
+    if (event player.keymap[KM_NORMAL] && !event player.keymap[KM_MENU] && !event player.keymap[KM_DRAW]);
+      allow button(event player, button(primary fire));
+      allow button(event player, button(secondary fire));
+      allow button(event player, button(melee));
+      allow button(event player, button(reload));
+    else if (event player.keymap[KM_MENU]);
+      disallow button(event player, button(primary fire));
+      disallow button(event player, button(secondary fire));
+      disallow button(event player, button(melee));
+      disallow button(event player, button(reload));
+    else if (event player.keymap[KM_DRAW]);
+      disallow button(event player, button(primary fire));
+      disallow button(event player, button(secondary fire));
+      allow button(event player, button(melee));
+      allow button(event player, button(reload));
     end;
   }
 }

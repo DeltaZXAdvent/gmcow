@@ -5,11 +5,15 @@ MN_HOME
 @MN_CUSTOMIZE  customize >  自定义 >
 CMD_FLASH  flash  闪现
 CMD_CHANGE  change hero  更换英雄
+CMD_DRAW  draw  绘画
 @MN_SPIN  spin >  旋转 >
+@MN_REPEAT  repeat >  抽搐 >
 @MN_PROJECTILE  projectile >  投射物 >
 CMD_UTTER  utter  叫喊
 CMD_CANCEL  cancel action  取消动作
 CMD_RESPAWN_POINT  set respawn point  设置重生点
+@MN_BOT  bot >  机器人 >
+@MN_PARKOUR  parkour >  跑酷 >
 @MN_LANG  language >  语言 >
 @MN_ABOUT  about >  关于 >
 CMD_OPERATOR  operator >  管理员 >
@@ -36,6 +40,7 @@ CMD_PHASED_OUT  phased out  相移
 CMD_ROOTED  rooted  定身
 CMD_STUNNED  stunned  击晕
 CMD_INVISIBLE  invisible  隐身
+CMD_FIXED  fixed position  固定位置
 CMD_COLLI_PLAYER  toggle collision with players  玩家碰撞
 @MN_HOME  home >  主菜单 >
 
@@ -53,8 +58,21 @@ MN_SPIN
 0  [spin]  【旋转】
 CMD_SPIN_HORI  spin horizontally  水平旋转
 CMD_SPIN_VERT  spin vertically  垂直旋转
-CMD_SPIN_SPEEDUP  speedup  加速
-CMD_SPIN_SLOWDOWN  slowdown  减速
+CMD_SPIN_SPEEDUP  speed up  加速
+CMD_SPIN_SLOWDOWN  slow down  减速
+@MN_HOME  home >  主菜单 >
+
+MN_REPEAT
+0  [repeat]  【抽搐】
+CMD_R_KNOCKEDDOWN  knocked down  击倒
+CMD_R_FROZEN  frozen  冰冻
+CMD_R_STUNNED  stunned  击晕
+CMD_R_ABILITY1  ability 1  技能一
+CMD_R_ABILITY2  ability 2  技能二
+CMD_R_HACKED  hacked  被入侵
+0  ! select again to turn off  ! 重新选择以关闭
+CMD_R_PERIOD_SHORTER  speed up  加速
+CMD_R_PERIOD_LONGER  speed down  减速
 @MN_HOME  home >  主菜单 >
 
 MN_PROJECTILE
@@ -86,6 +104,11 @@ MN_OPERATOR
 0  [operator]  【管理员】
 CMD_RESPAWN_POINT_ALL  set respawn point for all  设置全体重生点
 CMD_CAMERA  set camera for all  设置全体摄像头
+CMD_INSPECTOR  toggle inspector  开关调试器
+CMD_BOT_CLEAR  clear bots  清除机器人
+CMD_GRAPPLE_MAX_CT_INCR  increase grapple max count  增加最大线条数
+CMD_GRAPPLE_MAX_CT_DECR  decrease grapple max count  减少最大线条数
+CMD_GENJI_PARKOUR_POINTS_CLEAR  clear parkour points  清除跑酷点
 @MN_HOME  home >  主菜单 >
 
 MN_SLOWMOTION
@@ -94,5 +117,26 @@ CMD_SLOWMOTION  slowmotion  慢动作
 CMD_SLOWMOTION_SLOWDOWN  slowmotion slowdown  减速
 CMD_SLOWMOTION_SPEEDUP  slowmotion speedup  加速
 CMD_HUD  hud toggle  开关HUD
+@MN_HOME  home >  主菜单 >
+
+MN_BOT
+0  [bot]  【机器人】
+CMD_BOT_DISCOBALL  disco ball  迪斯科球
+CMD_BOT_VENOM  venom  毒雷
+CMD_BOT_CHARGER  charger  冲锋者
+CMD_BOT_CHARGER_INVISIBLE  charger invisiblity  冲锋者隐身
+CMD_BOT_IMAGE  image  镜像
+CMD_BOT_ABILITY1  ability 1 bot  技能一机器人
+CMD_BOT_ABILITY2  ability 2 bot  技能二机器人
+CMD_BOT_ULTIMATE  ultimate bot  终极技能机器人
+CMD_BOT_PRIMARY_FIRE  primary fire bot  主要武器机器人
+CMD_BOT_SECONDARY_FIRE  secondary fire bot  次要武器机器人
+CMD_BOT_TEAM  change bot team  切换机器人队伍
+@MN_HOME  home >  主菜单 >
+
+MN_PARKOUR
+0  [parkour]  【跑酷】
+CMD_GENJI_POINT_SET  set parkour point  设置跑酷点
+CMD_GENJI_PARKOUR_TOGGLE  parkour toggle  跑酷开关
 @MN_HOME  home >  主菜单 >
 

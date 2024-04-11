@@ -12,6 +12,8 @@ enum STAT {
   STAT_PROJ_SPEED
   STAT_COLLI_PLAYER
   STAT_COLLI_ENVIRO
+  STAT_KNOCKBACK
+  STAT_FIXED
 }
 
 rule("stat init") {
@@ -19,7 +21,7 @@ rule("stat init") {
   actions {
     event player.stat[STAT_KNOCKED_DOWN] = false;
     event player.stat[STAT_ASLEEP] = false;
-	set status(event player, null, invincible, 9999);
+    set status(event player, null, invincible, 9999);
     event player.stat[STAT_INVISIBLE] = false;
     event player.stat[STAT_SCALE] = 1;
     event player.stat[STAT_HUD] = true;
@@ -28,5 +30,7 @@ rule("stat init") {
     event player.stat[STAT_COLLI_PLAYER] = true;
     enable movement collision with players(event player);
     event player.stat[STAT_COLLI_ENVIRO] = true;
+    event player.stat[STAT_KNOCKBACK] = 100;
+    event player.stat[STAT_FIXED] = false;
   }
 }

@@ -4,6 +4,8 @@ comments {
   - mutiple string comments
   - depends on menu.cfg.ow & menu.cfg.ow depends on this (because of MN_OPERATOR)
   - 3-element operator priority
+  TODO
+  - Set frozen to refresh knocked down voice
 }
 
 dependencies {
@@ -18,6 +20,12 @@ subroutines {
   cmdmisc
   changehero
   massfire
+  rptknockeddown
+  rptability1
+  rptability2
+  rptfrozen
+  rptstunned
+  rpthacked
 }
 
 variables global {
@@ -25,14 +33,39 @@ variables global {
 }
 variables player {
   posfac
+  rptperiod
 }
 
 enum ruleflags {
   RF_MASSFIRE
+  RF_R_KNOCKED_DOWN
+  RF_R_ABILITY1
+  RF_R_ABILITY2
+  RF_R_FROZEN
+  RF_R_STUNNED
+  RF_R_HACKED
 }
 
 enum CMD_GROUP {
   CMDG_MISC
+  CMDG_BOT
+}
+
+rule("misc init global") {
+ event { ongoing - global; }
+ actions {
+ }
+}
+
+rule("misc init player") {
+ event { ongoing - each player; all; all; }
+ actions {
+  "repeating"
+  event player.rptperiod = 0.128;
+  event player.ruleflags[RF_R_KNOCKED_DOWN] = false;
+  event player.ruleflags[RF_R_ABILITY1] = false;
+  event player.ruleflags[RF_R_ABILITY2] = false;
+ }
 }
 
 rule("sub changehero") {
@@ -53,6 +86,16 @@ rule("sub changehero") {
 	}
 }
 
+rule("misc need healing to change hero [debug]") {
+ event { ongoing - each player; all; all; }
+ conditions {
+  is communicating(event player, need healing) == true;
+ }
+ actions {
+  start rule(changehero, do nothing);
+ }
+}
+
 rule("sub massfire") {
   event { subroutine; massfire; }
   actions {
@@ -68,3 +111,97 @@ rule("sub massfire") {
   }
 }
 
+rule("sub rptknockeddown") {
+ event { subroutine; rptknockeddown; }
+ actions {
+  event player.ruleflags[RF_R_KNOCKED_DOWN] = !event player.ruleflags[RF_R_KNOCKED_DOWN];
+  if(!event player.ruleflags[RF_R_KNOCKED_DOWN]);
+   clear status(event player, knocked down);
+   abort;
+  end;
+  while(true);
+   set status(event player, null, knocked down, 9999);
+   wait(event player.rptperiod, ignore condition);
+   clear status(event player, knocked down);
+   wait(event player.rptperiod, ignore condition);
+  end;
+ }
+}
+
+rule("sub rptability1") {
+ event { subroutine; rptability1; }
+ actions {
+  event player.ruleflags[RF_R_ABILITY1] = !event player.ruleflags[RF_R_ABILITY1];
+  if(!event player.ruleflags[RF_R_ABILITY1]);
+   abort;
+  end;
+  while(true);
+   press button(event player, button(ability 1));
+   wait(event player.rptperiod, ignore condition);
+   cancel primary action(event player);
+  end;
+ }
+}
+
+rule("sub rptabiltiy2") {
+ event { subroutine; rptability2; }
+ actions {
+  event player.ruleflags[RF_R_ABILITY2] = !event player.ruleflags[RF_R_ABILITY2];
+  if(!event player.ruleflags[RF_R_ABILITY2]);
+   abort;
+  end;
+  while(true);
+   press button(event player, button(ability 2));
+   wait(event player.rptperiod, ignore condition);
+   cancel primary action(event player);
+  end;
+ }
+}
+
+rule("sub rptfrozen") {
+ event { subroutine; rptfrozen; }
+ actions {
+  event player.ruleflags[RF_R_FROZEN] = !event player.ruleflags[RF_R_FROZEN];
+  if(!event player.ruleflags[RF_R_FROZEN]);
+   clear status(event player, frozen);
+   abort;
+  end;
+  while(true);
+   set status(event player, null, frozen, 9999);
+   wait(event player.rptperiod, ignore condition);
+   clear status(event player, frozen);
+  end;
+ }
+}
+
+rule("sub rptstunned") {
+ event { subroutine; rptstunned; }
+ actions {
+  event player.ruleflags[RF_R_STUNNED] = !event player.ruleflags[RF_R_STUNNED];
+  if(!event player.ruleflags[RF_R_STUNNED]);
+   clear status(event player, stunned);
+   abort;
+  end;
+  while(true);
+   set status(event player, null, stunned, 9999);
+   wait(event player.rptperiod, ignore condition);
+   clear status(event player, stunned);
+  end;
+ }
+}
+
+rule("sub rpthacked") {
+ event { subroutine; rpthacked; }
+ actions {
+  event player.ruleflags[RF_R_HACKED] = !event player.ruleflags[RF_R_HACKED];
+  if(!event player.ruleflags[RF_R_HACKED]);
+   clear status(event player, hacked);
+   abort;
+  end;
+  while(true);
+   set status(event player, null, hacked, 9999);
+   wait(event player.rptperiod, ignore condition);
+   clear status(event player, hacked);
+  end;
+ }
+}

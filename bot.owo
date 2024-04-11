@@ -1,0 +1,51 @@
+comments {
+ NAME
+ bots
+ DESCRIPTION
+ Mutiple bots
+ TODO
+ - dependencies
+}
+
+dependencies {
+ base
+}
+
+variables global {
+  chargerinvisible
+}
+
+variables player {
+ bottype
+ botteam
+}
+
+subroutines {
+ invisibleloop
+}
+
+rule("bot init") {
+ event { ongoing - global; }
+ actions {
+  global.chargerinvisible = false;
+ }
+}
+
+rule("bot init player") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.botteam = false;
+  }
+}
+
+rule("sub invisibleloop") {
+ event { subroutine; invisibleloop; }
+ actions {
+  wait until(event player.stat[STAT_INVISIBLE], 99999);
+  set invisible(event player, all);
+  wait until(!event player.stat[STAT_INVISIBLE], 99999);
+  set invisible(event player, none);
+  loop;
+ }
+}
+

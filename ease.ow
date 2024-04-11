@@ -3,6 +3,10 @@ comments {
   ease
   DESCRIPTION
   Basic game logic modified.
+  POTENTIAL BUGS
+  TODO
+  weapon function
+  fix infinite ammo
 }
 
 variables player {
@@ -10,23 +14,31 @@ variables player {
 }
 variables global {
   resstat
+  inspector_enabled
 }
 
 rule("ease init global") {
   event { ongoing - global; }
   actions {
     disable built-in game mode completion;
+    disable built-in game mode music;
+    global.inspector_enabled = false;
     disable inspector recording;
     global.resstat = array(0, 0);
     while(!is game in progress);
       set match time(0);
-      wait(0.016, ignore condition);
+      wait(8, ignore condition);
     end;
   }
 }
 rule("ease init player") {
   event { ongoing - each player; all; all; }
+  conditions {
+   is dummy bot(event player) == false;
+  }
   actions {
+    disable game mode hud(event player);
+    disable game mode in-world ui(event player);
     event player.resstat = global.resstat;
   }
 }
@@ -43,7 +55,7 @@ rule("ease spawn") {
     end;
     while(true);
       wait until(is dead(event player), 99999);
-      wait until(is alive(event player), 99999);
+      wait until(!is dead(event player), 99999);
       if(event player.resstat[0] != 0);
         teleport(event player, event player.resstat[0]);
       end;
@@ -64,4 +76,54 @@ rule("ease infinite ult") {
     wait(0.016, ignore condition);
   end;
   }
+}
+
+rule("ease auto reload") {
+  event { ongoing - each player; all; all; }
+  conditions {
+    ammo(event player, weapon(event player)) == 0;
+  }
+  actions {
+    set ammo(event player, weapon(event player), max ammo(event player, weapon(event player)));
+  }
+}
+
+rule("ease load monitor [extension: misc]") {
+ event { ongoing - global; }
+ actions {
+	create hud text(host player, null, null,
+                  custom string("server load: {0}\r\nserver load average: {1}\r\nserver load peak: {2}",
+                                server load, server load average, server load peak),
+                  right, 2, color(white), color(white), color(white),
+                  visible to and string, default visibility);
+  wait until(is game in progress, 99999);
+  while(true);
+   while(true);
+    wait until(server load >= 250, 99999);
+    wait until(server load < 250, 2);
+    if(server load >= 250);
+     break;
+    end;
+   end;
+
+   "lift loads"
+   destroy all dummy bots;
+   all players(all teams).ruleflags[RF_R_KNOCKED_DOWN] = false;
+   all players(all teams).ruleflags[RF_R_ABILITY1] = false;
+   all players(all teams).ruleflags[RF_R_ABILITY2] = false;
+   global.menuable = false;
+
+   big message(filtered array(all players(all teams), current array element.lang == LANG_EN), custom string("Server overloaded!"));
+   big message(filtered array(all players(all teams), current array element.lang == LANG_ZN), custom string("服务器过载!"));
+   wait until(server load < 250, 4);
+   if (server load >= 250);
+    return to lobby;
+   else;
+    wait(4, ignore condition);
+   end;
+   global.menuable = true;
+   big message(filtered array(all players(all teams), current array element.lang == LANG_EN), custom string("Functionalities recovered..."));
+   big message(filtered array(all players(all teams), current array element.lang == LANG_ZN), custom string("功能已恢复..."));
+  end;
+ }
 }

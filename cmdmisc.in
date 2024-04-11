@@ -92,10 +92,29 @@ abort;
 event player.stat[STAT_COLLI_PLAYER] = !event player.stat[STAT_COLLI_PLAYER];
 if (event player.stat[STAT_COLLI_PLAYER]);
   enable movement collision with players(event player);
-  small message(event player, event player.lang == LANG_EN ? custom string("collision with players enabled") : (event player.lang == LANG_ZN ? custom string("'玩家碰撞'已打开") : custom string("?")));  
+  small message(event player, event player.lang == LANG_EN ? custom string("collision with players enabled") : (event player.lang == LANG_ZN ? custom string("'玩家碰撞' 已打开") : custom string("?")));  
 else;
     small message(event player, event player.lang == LANG_EN ? custom string("collision with players disabled") : (event player.lang == LANG_ZN ? custom string("'玩家碰撞' 已关闭") : custom string("?")));
   disable movement collision with players(event player);
+abort;
+"_CMD_KNOCKBACK"
+if (event player.stat[STAT_KNOCKBACK] == 0);
+ event player.stat[STAT_KNOCKBACK] = 100;
+ set knockback received(event player, 100);
+ small message(event player, event player.lang == LANG_EN ? custom string("knockback enabled") : (event player.lang == LANG_ZN ? custom string("'被击退' 已打开") : custom string("?")));  
+else;
+ event player.stat[STAT_KNOCKBACK] = 0;
+ set knockback received(event player, 0);
+ small message(event player, event player.lang == LANG_EN ? custom string("knockback disabled") : (event player.lang == LANG_ZN ? custom string("'被击退' 已关闭") : custom string("?")));
+end;
+"_CMD_FIXED"
+if (event player.stat[STAT_FIXED]);
+ event player.stat[STAT_FIXED] = false;
+ stop forcing player position(event player);
+else;
+ event player.stat[STAT_FIXED] = true;
+ start forcing player position(event player, position of(event player), false);
+end;
 abort;
 
 "_CMD_PERSP_DEFAULT"
@@ -128,11 +147,11 @@ set move speed(event player, 100 * event player.stat[STAT_SCALE]);
 set jump vertical speed(event player, 100 * square root(event player.stat[STAT_SCALE]));
 abort;
 "_CMD_PITCH_HIGHER"
-event player.stat[STAT_PITCH] *= (square root(5) + 1) / 2;
+event player.stat[STAT_PITCH] *= 2 ^ (1 / 12);
 start modifying hero voice lines(event player, event player.stat[STAT_PITCH], false);
 abort;
 "_CMD_PITCH_LOWER"
-event player.stat[STAT_PITCH] *= (square root(5) - 1) / 2;
+event player.stat[STAT_PITCH] /= 2 ^ (1 / 12);
 start modifying hero voice lines(event player, event player.stat[STAT_PITCH], false);
 abort;
 "_CMD_PITCH_STOP"
@@ -206,11 +225,11 @@ abort;
 
 "_CMD_FLASH"
 play effect(all players(all teams), good explosion, color(sky blue), (position of(event player) + eye position(event player)) / 2, 1);
-global.argv[0] = ray cast hit position(eye position(event player), eye position(event player) + 10 * facing direction of(event player), null, null, false) - eye position(event player) + position of(event player);
-if(distance between(global.argv[0], position of(event player)) < 7);
-  teleport(event player, global.argv[0] + 3 * direction towards(position of(event player), global.argv[0]));
+global.argv[0] = ray cast hit position(eye position(event player), eye position(event player) + 10 * event player.stat[STAT_SCALE] * facing direction of(event player), null, null, false) - eye position(event player) + position of(event player);
+if(distance between(global.argv[0], position of(event player)) < 7 * event player.stat[STAT_SCALE]);
+  teleport(event player, global.argv[0] + 3 * event player.stat[STAT_SCALE] * direction towards(position of(event player), global.argv[0]));
 else;
-  teleport(event player, position of(event player) + 10 * facing direction of(event player));
+  teleport(event player, position of(event player) + 10 * event player.stat[STAT_SCALE] * facing direction of(event player));
 end;
 apply impulse(event player, -1 * velocity of(event player), speed of(event player), to world, incorporate contrary motion);
 play effect(all players(all teams), good explosion, color(sky blue), (position of(event player) + eye position(event player)) / 2, 1);
@@ -276,4 +295,137 @@ if (event player.authority == 0);
 end;
 global.argv[0] = eval(CMDG_JUMP * 1000 + MN_OPERATOR);
 call subroutine(menucmd);
+abort;
+
+
+"Repeating"
+"_CMD_R_KNOCKEDDOWN"
+start rule(rptknockeddown, restart rule);
+abort;
+"_CMD_R_ABILITY1"
+start rule(rptability1, restart rule);
+abort;
+"_CMD_R_ABILITY2"
+start rule(rptability2, restart rule);
+abort;
+"_CMD_R_FROZEN"
+start rule(rptfrozen, restart rule);
+abort;
+"_CMD_R_STUNNED"
+start rule(rptstunned, restart rule);
+abort;
+"_CMD_R_HACKED"
+start rule(rpthacked, restart rule);
+abort;
+"_CMD_R_PERIOD_SHORTER"
+event player.rptperiod /= 2;
+if (event player.rptperiod < 0.016);
+ event player.rptperiod = 0.016;
+end;
+abort;
+"_CMD_R_PERIOD_LONGER"
+event player.rptperiod *= 2;
+if (event player.rptperiod > 2.048);
+ event player.rptperiod = 2.048;
+end;
+abort;
+
+"Bots"
+"_CMD_BOT_DISCOBALL"
+create dummy bot(hero(baptiste), team of(event player), -1, ray cast hit position(eye position(event player), eye position(event player) + facing direction of(event player) * 100, null, null, false), -1 * facing direction of(event player));
+last created entity.bottype = BOT_DISCOBALL;
+abort;
+"_CMD_BOT_VENOM"
+create dummy bot(hero(widowmaker), opposite team of(team of(event player)), -1, ray cast hit position(eye position(event player), eye position(event player) + facing direction of(event player) * 100, null, null, false), -1 * facing direction of(event player));
+last created entity.bottype = BOT_VENOM;
+abort;
+"_CMD_BOT_CHARGER"
+create dummy bot(hero(reinhardt), opposite team of(team of(event player)), -1, ray cast hit position(eye position(event player), eye position(event player) + facing direction of(event player) * 100, null, null, false), -1 * facing direction of(event player));
+last created entity.bottype = BOT_CHARGER;
+abort;
+"_CMD_BOT_IMAGE"
+create dummy bot(hero of(event player), opposite team of(team of(event player)), -1, position of(event player), facing direction of(event player));
+last created entity.bottype = BOT_IMAGE;
+last created entity.resstat = array(position of(event player), facing direction of(event player));
+abort;
+"_CMD_BOT_TEAM"
+event player.botteam = !event player.botteam;
+if (event player.botteam);
+ small message(event player, custom string("ALLY"));
+else;
+ small message(event player, custom string("enemy"));
+end;
+abort;
+"_CMD_BOT_PRIMARY_FIRE"
+"_CMD_BOT_SECONDARY_FIRE"
+"_CMD_BOT_ABILITY1"
+"_CMD_BOT_ABILITY2"
+"_CMD_BOT_ULTIMATE"
+create dummy bot(hero of(event player), event player.botteam ? team of(event player) : opposite team of(team of(event player)), -1, position of(event player), facing direction of(event player));
+last created entity.bottype = global.argv[0] + eval(CMDG_MISC * 1000 + BOT_PRIMARY_FIRE - CMD_BOT_PRIMARY_FIRE);
+last created entity.resstat = array(position of(event player), facing direction of(event player));
+abort;
+"_CMD_BOT_CHARGER_INVISIBLE"
+global.chargerinvisible = !global.chargerinvisible;
+if (global.chargerinvisible);
+ filtered array(all players(all teams), current array element.bottype == BOT_CHARGER).stat[STAT_INVISIBLE] = true;
+else;
+ filtered array(all players(all teams), current array element.bottype == BOT_CHARGER).stat[STAT_INVISIBLE] = false;
+end;
+abort;
+"_CMD_BOT_CLEAR"
+destroy all dummy bots;
+abort;
+
+"_CMD_DRAW"
+if (event player.ruleflags[RF_DRAW]);
+  small message(event player, event player.lang == LANG_EN ? custom string("draw mode off") : event player.lang == LANG_ZN ? custom string("绘画模式关闭") : custom string("?"));
+else;
+  small message(event player, event player.lang == LANG_EN ? custom string("draw mode on") : event player.lang == LANG_ZN ? custom string("绘画模式开启") : custom string("?"));
+end;
+start rule(draw, restart rule);
+abort;
+
+"_CMD_GRAPPLE_MAX_CT_INCR"
+global.grapple_max_ct += 1;
+abort;
+"_CMD_GRAPPLE_MAX_CT_DECR"
+global.grapple_max_ct -= 1;
+abort;
+
+"_CMD_INSPECTOR"
+global.inspector_enabled = !global.inspector_enabled;
+if (global.inspector_enabled);
+  enable inspector recording;
+  small message(event player, custom string("enabled"));
+else;
+  disable inspector recording;
+  small message(event player, custom string("disabled"));
+end;
+abort;
+
+"_CMD_GENJI_POINT_SET"
+if (array contains(array(hero(genji), hero(hanzo), hero(kiriko)), hero of(event player)) && is standing(event player));
+  modify global variable(genji_parkour_points, append to array, position of(event player));
+	create effect(all players(all teams), ring, color(white), position of(event player), 1, visible to);
+  modify global variable(genji_parkour_effects, append to array, last created entity);
+else;
+  small message(event player, custom string("Please use genji / hanzo / kiriko while standing"));
+end;
+abort;
+"_CMD_GENJI_PARKOUR_TOGGLE"
+event player.genji_parkour_toggle = !event player.genji_parkour_toggle;
+if (event player.genji_parkour_toggle);
+  small message(event player, custom string("on"));
+else;
+  small message(event player, custom string("off"));
+end;
+start rule(genji_parkour, restart rule);
+abort;
+"_CMD_GENJI_PARKOUR_POINTS_CLEAR"
+global.genji_parkour_points = array();
+while (count of(global.genji_parkour_effects) != 0);
+  destroy effect(global.genji_parkour_effects[0]);
+  global.genji_parkour_effects = array slice(global.genji_parkour_effects, 1, count of(global.genji_parkour_effects));
+end;
 abort;

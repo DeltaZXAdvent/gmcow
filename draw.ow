@@ -1,0 +1,198 @@
+comments {
+  Name: draw
+
+  TODO:
+  - [ ] Test the effect number limit
+  Issues:
+  1. The data structure of draw entities
+     If the methods include finding the prior entity for one player and destroying it and finding the oldest entity,
+     then some allocation algorithm must occur.
+     But maybe the allocation algorithm is already provided by array functions (the array is not linear array, test
+     to show it or disprove it.)
+}
+
+dependencies {
+  base
+  stat
+}
+
+variables global {
+  drawentities
+  grapple_max_ct
+}
+comments {
+  drawentities: {id, playerid, begin, end, prior_offset}
+    playerid = 0 for global entities
+    id = -1 for destroyed ones
+}
+
+variables player {
+  drawvisible
+}
+
+subroutines {
+  draw
+  drawerase
+}
+
+enum ruleflags {
+  RF_DRAW
+}
+
+enum LINE_OFFSETS {
+  LINE_ID
+  LINE_PLAYERID
+  LINE_BEGIN
+  LINE_END
+  SIZEOF_LINE
+}
+
+rule("draw init global") {
+  event { ongoing - global; }
+  actions {
+    global.drawentities = array();
+    global.grapple_max_ct = 249;
+  	create hud text(filtered array(all players(all teams), current array element.ruleflags[RF_DRAW]),
+                    null, null,
+                    custom string("current lines: {0}\r\nmaximum lines: {1}", count of(global.drawentities) / SIZEOF_LINE, global.grapple_max_ct),
+                    right, 2, color(white), color(white), color(yellow),
+		                visible to and string, default visibility);
+  }
+}
+
+rule("draw init player") {
+  event { ongoing - each player; all; all; }
+  actions {
+    event player.drawvisible = true;
+  }
+}
+rule("draw deinit player") {
+  event { player left match; all; all; }
+  actions {
+  }
+}
+comments {
+  UNUSED:
+    global.drawtops = array();
+
+    modify global variable(drawtops, append to array, array(event player.id, -1));
+
+    global.argv[0] = index of array value(filtered array(global.drawtops, current array index % 2 == 0), event player.id) * 2;
+    global.drawtops = append to array(array slice(global.drawtops, 0, global.argv[0]),
+                                      array slice(global.drawtops, global.argv[0] + 2, count of(global.drawtops)));
+}
+
+rule("rule draw") {
+  event { subroutine; draw; }
+  actions {
+    if (event player.ruleflags[RF_DRAW]);
+      global.argv[0] = (count of(global.drawentities) - 1 - index of array value(filtered array(global.drawentities,
+                                                                                                (count of(global.drawentities) - 1 - current array index - LINE_PLAYERID) % SIZEOF_LINE == 0),
+                                                                                 event player.id)) * SIZEOF_LINE;
+      if (global.argv[0] >= 0 && global.drawentities[global.argv[0] + LINE_END] == 0);
+        global.drawentities = append to array(array slice(global.drawentities, 0, global.argv[0]),
+                                              array slice(global.drawentities, global.argv[0] + SIZEOF_LINE, count of(global.drawentities)));
+      end;
+      event player.keymap[KM_DRAW] = false;
+      call subroutine(keymap);
+      start rule(drawerase, restart rule);
+      abort;
+    end;
+    event player.keymap[KM_DRAW] = true;
+    call subroutine(keymap);
+    start rule(drawerase, do nothing);
+    wait until(!is button held(event player, button(primary fire)), 99999); 
+    while(true);
+      wait until(is button held(event player, button(primary fire)) && !event player.keymap[KM_MENU], 99999);
+      if (count of(global.drawentities) / SIZEOF_LINE >= global.grapple_max_ct);
+        "TODO don't remove the in progress line"
+        destroy effect(global.drawentities[LINE_ID]);
+        global.drawentities = array slice(global.drawentities, SIZEOF_LINE, count of(global.drawentities));
+      end;
+      global.argv[0] = ray cast hit position(eye position(event player),
+                                             eye position(event player) + facing direction of(event player) * 3 * event player.stat[STAT_SCALE],
+                                             null, null, false);
+      create beam effect(filtered array(all players(all teams), current array element.drawvisible),
+                         grapple beam,
+                         evaluate once(global.argv[0]),
+                         update every frame(ray cast hit position(eye position(event player),
+                                                                  eye position(event player) + facing direction of(event player) * 3 * event player.stat[STAT_SCALE],
+                                                                  null, null, false)),
+                         color(white),
+                         visible to position and radius);
+      modify global variable(drawentities, append to array,
+                             array(last created entity,
+                                         event player.id,
+                                         evaluate once(global.argv[0]),
+                                         0));
+
+      wait until(!is button held(event player, button(primary fire)) && !event player.keymap[KM_MENU], 99999);
+      global.argv[0] = ray cast hit position(eye position(event player),
+                                             eye position(event player) + facing direction of(event player) * 3 * event player.stat[STAT_SCALE],
+                                             null, null, false);
+      global.argv[1] = filtered array(global.drawentities,
+                                      (current array index - LINE_PLAYERID) % SIZEOF_LINE == 0);
+      global.argv[1] = mapped array(global.argv[1], global.argv[1][count of(global.drawentities) / SIZEOF_LINE - 1 - current array index]);
+      global.argv[1] = (count of(global.drawentities) / SIZEOF_LINE - 1 - index of array value(global.argv[1],
+                                                                                               event player.id)) * SIZEOF_LINE;
+      destroy effect(global.drawentities[global.argv[1] + LINE_ID]);
+      create beam effect(filtered array(all players(all teams), current array element.drawvisible),
+                         grapple beam,
+                         global.drawentities[global.argv[1] + LINE_BEGIN],
+                         global.argv[0],
+                         color(white),
+                         visible to);
+      global.drawentities[global.argv[1] + LINE_ID] = last created entity;
+      global.drawentities[global.argv[1] + LINE_END] = global.argv[0];
+    end;
+  }
+}
+
+rule("rule drawerase") {
+  event {subroutine; drawerase;}
+  actions {
+    if (event player.ruleflags[RF_DRAW]);
+      event player.ruleflags[RF_DRAW] = false;
+      abort;
+    end;
+    event player.ruleflags[RF_DRAW] = true;
+    wait until(!is button held(event player, button(secondary fire)), 99999); 
+    while(true);
+
+      wait until(is button held(event player, button(secondary fire)) && !event player.keymap[KM_MENU], 99999);
+      global.argv[0] = filtered array(global.drawentities,
+                                      (current array index - LINE_PLAYERID) % SIZEOF_LINE == 0);
+      global.argv[0] = mapped array(global.argv[0], global.drawentities[(count of(global.drawentities) / SIZEOF_LINE - 1 - current array index) * SIZEOF_LINE - LINE_PLAYERID + LINE_END] == 0 ? 0 : global.argv[0][count of(global.drawentities) / SIZEOF_LINE - 1 - current array index]);
+      global.argv[0] = (count of(global.drawentities) / SIZEOF_LINE - 1 - index of array value(global.argv[0],
+                                                                                               event player.id)) * SIZEOF_LINE;
+      if (global.argv[0] >= 0);
+        destroy effect(global.drawentities[global.argv[0] + LINE_ID]);
+        global.drawentities = append to array(array slice(global.drawentities, 0, global.argv[0]),
+                                              array slice(global.drawentities, global.argv[0] + SIZEOF_LINE, count of(global.drawentities)));
+      end;
+
+      "repeat key"
+			wait until(!is button held(event player, button(secondary fire)) || event player.keymap[KM_MENU], 0.320);
+			if (is button held(event player, button(secondary fire)) && !event player.keymap[KM_MENU]);
+				while (true);
+					wait until(!is button held(event player, button(secondary fire)) || event player.keymap[KM_MENU], 0.064);
+					if (is button held(event player, button(secondary fire)) && !event player.keymap[KM_MENU]);
+            global.argv[0] = filtered array(global.drawentities,
+                                            (current array index - LINE_PLAYERID) % SIZEOF_LINE == 0);
+            global.argv[0] = mapped array(global.argv[0], global.drawentities[(count of(global.drawentities) / SIZEOF_LINE - 1 - current array index) * SIZEOF_LINE - LINE_PLAYERID + LINE_END] == 0 ? 0 : global.argv[0][count of(global.drawentities) / SIZEOF_LINE - 1 - current array index]);
+            global.argv[0] = (count of(global.drawentities) / SIZEOF_LINE - 1 - index of array value(global.argv[0],
+                                                                                       event player.id)) * SIZEOF_LINE;
+            if (global.argv[0] >= 0);
+              destroy effect(global.drawentities[global.argv[0] + LINE_ID]);
+              global.drawentities = append to array(array slice(global.drawentities, 0, global.argv[0]),
+                                                    array slice(global.drawentities, global.argv[0] + SIZEOF_LINE, count of(global.drawentities)));
+            end;
+					else;
+						break;
+					end;
+				end;
+			end;
+
+    end;
+  }
+}

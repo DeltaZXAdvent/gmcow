@@ -66,11 +66,12 @@ rule("menu init player") {
 rule("menu loop") {
   event {ongoing - each player; all; all;}
   actions {
+    wait until(array contains(all heroes, hero of(event player)), 99999);
     while(true);
       "open menu"
       event player.ruleflags[RF_MENU] = true;
-      global.argv[0] = false;
-      call subroutine(modebtn);
+      event player.keymap[KM_MENU] = true;
+      call subroutine(keymap);
       start rule(menuctln, restart rule);
       start rule(menuctlp, restart rule);
       start rule(menuctlsel, restart rule);
@@ -92,8 +93,8 @@ rule("menu loop") {
 
       "close menu"
       event player.ruleflags[RF_MENU] = false;
-      global.argv[0] = true;
-      call subroutine(modebtn);
+      event player.keymap[KM_MENU] = false;
+      call subroutine(keymap);
       start rule(menusc, restart rule);
       destroy hud text(event player.menuid[0]);
       destroy hud text(event player.menuid[1]);

@@ -1,0 +1,94 @@
+"_BOT_IMAGE"
+clear status(event player, invincible);
+abort;
+
+"_BOT_DISCOBALL"
+start forcing dummy bot name(event player, custom string("disco ball"));
+start forcing player to be hero(event player, hero(baptiste));
+event player.stat[STAT_INVISIBLE] = true;
+set invisible(event player, all);
+event player.stat[STAT_COLLI_PLAYER] = false;
+disable movement collision with players(event player);
+wait(0.016, ignore condition);
+start forcing player position(event player, position of(event player), false);
+set facing(event player, down, to world);
+wait(0.016, ignore condition);
+while(true);
+ press button(event player, button(ability 2));
+ wait(5, ignore condition);
+end;
+abort;
+
+"_BOT_VENOM"
+start forcing dummy bot name(event player, custom string("venom"));
+start forcing player to be hero(event player, hero(widowmaker));
+event player.stat[STAT_INVISIBLE] = true;
+set invisible(event player, all);
+event player.stat[STAT_COLLI_PLAYER] = false;
+disable movement collision with players(event player);
+wait(0.016, ignore condition);
+start forcing player position(event player, position of(event player), false);
+set facing(event player, down, to world);
+wait(0.016, ignore condition);
+while(true);
+ press button(event player, button(ability 2));
+ wait(4, ignore condition);
+end;
+abort;
+
+"_BOT_CHARGER"
+start forcing dummy bot name(event player, custom string("charger"));
+event player.stat[STAT_COLLI_PLAYER] = false;
+disable movement collision with players(event player);
+if (global.chargerinvisible);
+ event player.stat[STAT_INVISIBLE] = true;
+ set invisible(event player, all);
+else;
+ event player.stat[STAT_INVISIBLE] = false;
+ set invisible(event player, none);
+end;
+start rule(invisibleloop, do nothing);
+set status(event player, null, phased out, 9999);
+set knockback dealt(event player, 0);
+wait(0.016, ignore condition);
+start forcing player position(event player, position of(event player), false);
+while(true);
+ press button(event player, button(ability 1));
+ wait(0.016, ignore condition);
+ wait until(!is using ability 1(event player), 99999);
+end;
+abort;
+
+"_BOT_PRIMARY_FIRE"
+wait(5, ignore condition);
+start holding button(event player, button(primary fire));
+abort;
+
+"_BOT_SECONDARY_FIRE"
+wait(5, ignore condition);
+start holding button(event player, button(secondary fire));
+abort;
+
+"_BOT_ABILITY1"
+while(true);
+ press button(event player, button(ability 1));
+ wait(0.016, ignore condition);
+ wait until(!is using ability 1(event player), 99999);
+end;
+abort;
+
+"_BOT_ABILITY2"
+while(true);
+ press button(event player, button(ability 2));
+ wait(0.016, ignore condition);
+ wait until(!is using ability 2(event player), 99999);
+end;
+abort;
+
+"_BOT_ULTIMATE"
+while(true);
+ press button(event player, button(ultimate));
+ wait(0.016, ignore condition);
+ wait until(!is using ultimate(event player), 99999);
+end;
+abort;

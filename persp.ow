@@ -80,9 +80,9 @@ rule("sub persp") {
       start rule(perspemote, restart rule);
       start camera(event player,
         update every frame(ray cast hit position(
-          eye position(event player),
-          eye position(event player) + facing direction of(event player) * -3 * event player.stat[STAT_SCALE],
-          null, null, false
+            eye position(event player),
+            eye position(event player) + facing direction of(event player) * -3 * event player.stat[STAT_SCALE],
+            null, null, false
         )),
         update every frame(eye position(event player)), 0);
     else if(event player.persp == PERSP_FIXED);

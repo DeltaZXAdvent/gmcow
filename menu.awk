@@ -3,6 +3,14 @@
 BEGIN {
   FS = "  "
   normal_nf = 0
+  print ""
+  print "rule(\"menu init player [config]\") {"
+  print "  event { ongoing - each player; all; all; }"
+  print "  actions {"
+  print "    event player.menusel = MN_LANG;"
+  print "    event player.menuitemsel = eval(2 * (CT_LANG + 1));"
+  print "  }"
+  print "}"
 }
 
 
@@ -45,14 +53,6 @@ END {
   print "array("
   print substr(array, 1, length(array) - 2)
   print ");"
-  print "  }"
-  print "}"
-  print ""
-  print "rule(\"menu init player [config]\") {"
-  print "  event { ongoing - each player; all; all; }"
-  print "  actions {"
-  print "    event player.menusel = MN_HOME;"
-  print "    event player.menuitemsel = eval(CT_LANG + 1);"
   print "  }"
   print "}"
 
