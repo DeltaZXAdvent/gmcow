@@ -40,6 +40,9 @@ rule("ease init player") {
     disable game mode hud(event player);
     disable game mode in-world ui(event player);
     event player.resstat = global.resstat;
+    "outline"
+	  start forcing player outlines(event player, all players(all teams), false, color(white), default);
+	  start forcing player outlines(all players(all teams), event player, false, color(white), default);
   }
 }
 

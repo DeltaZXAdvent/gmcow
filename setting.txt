@@ -11,58 +11,21 @@ settings
 
 	modes
 	{
-		disabled Control
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
 		Deathmatch
 		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
-		disabled Escort
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
-		disabled Flashpoint
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
-		disabled Hybrid
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
-		disabled Push
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
-		}
-
-		disabled Skirmish
-		{
-			Game Mode Start: Immediately
-			Hero Limit: Off
-			Respawn Time Scalar: 0%
+			enabled maps
+			{
+				Necropolis 972777519512068153
+			}
 		}
 
 		disabled Team Deathmatch
 		{
 			Game Length In Minutes: 5
+		}
+
+		General
+		{
 			Game Mode Start: Immediately
 			Hero Limit: Off
 			Respawn Time Scalar: 0%

@@ -1,0 +1,10 @@
+* Geocentric Music Club -- Chilling mode for Overwatch workshop
+Now because Overwatch is not very fun, this project is not likely to be developed.
+
+** But there is some reflection
+- [ ] global.argv[<number>] should be replace by global.argv[<string>]
+  This is way readable... I focused too much on boring efficiency...
+- [ ] The switch-case generator (in the Awk files) could be more readable
+- The builtin game development environment should be utilized more...
+- [ ] Readable file names and Makefile structure
+- [ ] A flexible parser permitting whitespaces could be written as replacement
